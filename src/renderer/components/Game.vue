@@ -1,0 +1,404 @@
+<template>
+<div class="game-screen">
+  <div class="code-area">
+    <div> </div>
+    <div>
+
+       <editor id="editor"
+        style="height: calc(100vh - 90px); width:100%; overflow: auto;" 
+        @init="editorInit" 
+        lang="javascript" 
+        theme="monokai"
+        value=""></editor>
+
+    </div>
+    <div style="padding: 20px;">
+        <router-link to="/LevelSelect">Level Select</router-link>
+        <button v-on:click="runCode" value="Run Code" class="btn btn-dark float-right">Run Code</button>
+    </div>
+    
+    
+  </div>
+  <div class="game-area">
+      <div id='gameCanvas'></div>
+  </div>
+</div>
+</template>
+
+<script>
+import router from '../router'
+import Phaser from 'phaser'
+import Interpreter from 'js-interpreter';
+import { clearInterval, setTimeout } from 'timers';
+
+
+var jaxi;
+var jaxiInterpreter;
+var codePause = false;
+var levelComplete = false;
+var levelNum = 1;
+var vue;
+
+export default {
+  name: 'level-select',
+  components: {
+    editor: require('vue2-ace-editor'),
+  },
+  data() {
+        return {
+            code: ''
+        }
+    },
+  mounted() {
+    this.code = localStorage.getItem('code_' + levelNum);
+    var editor = ace.edit("editor");
+    editor.getSession().setValue(this.code);
+  },
+  methods: {
+    fadeOut: function() {
+        this.$emit("fadeFunc", true);
+    },
+    editorInit: function () {
+        // require('brace/ext/language_tools') //language extension prerequsite...
+        // require('brace/mode/html')                
+        require('brace/mode/javascript')    //language
+        // require('brace/mode/less')
+        require('brace/theme/monokai')
+        
+        this.runGame();
+
+        vue = this;
+
+    },
+    runGame: function()
+    {
+
+levelNum = Number(this.$route.params.level);
+var levelData = require('../assets/levels/level' + this.$route.params.level + '.js');
+
+
+var config = {
+    type: Phaser.AUTO,
+    width: levelData.bounds.w,
+    height: levelData.bounds.h,
+    parent: 'gameCanvas',
+    physics: {
+        default: 'matter',
+        matter: {
+            //  gravity: {
+            //      x: 0,
+            //      y: 3
+            //  },
+             enableSleeping: true
+        }
+    },
+    scene: {
+        preload: preload,
+        create: create,
+        update: update
+    }
+};
+
+var game = new Phaser.Game(config);
+
+function preload ()
+{
+
+    this.load.atlas("jaxi", require("../assets/toybox/JaxiSprites.png"), require("../assets/toybox/JaxiSprites.json"));
+    this.load.image("g_bg_" + levelData.zone, require("../assets/toybox/g_bg_" + levelData.zone + ".png"));
+    this.load.image("g_ground_" + levelData.zone, require("../assets/toybox/g_ground_"  + levelData.zone + ".png"));
+    this.load.image("g_ground_rounded_" + levelData.zone, require("../assets/toybox/g_ground_rounded_" + levelData.zone + ".png"));
+    this.load.image("g_earth_" + levelData.zone, require("../assets/toybox/g_earth_" + levelData.zone + ".png"));
+    this.load.atlas("g_teleporter", require("../assets/toybox/TeleporterSprites.png"), require("../assets/toybox/TeleporterSprites.json"));
+    this.load.image("g_teleporter", require("../assets/toybox/g_teleporter.png"));
+
+    //scenery
+    var sceneryFiles = ['g_sc_bluebotbuilding.png', 'g_sc_junk_silhouette1.png', 'g_sc_rock1.png', 'g_sc_rocks.png', 'g_sc_trashclump1.png'];
+    sceneryFiles.forEach(file => {
+        this.load.image(file.split('.')[0], require('../assets/toybox/scenery/' + file));
+    });
+
+}
+
+function create ()
+{
+    //alert(JSON.stringify(levelData.level.elements[0].type));
+
+    this.matter.world.setBounds(0, -200, game.config.width, game.config.height + 200);
+
+    this.anims.create({ key: 'idol', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:0, end:0, zeroPad:4}), repeat: -1 });
+    this.anims.create({ key: 'run', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:1, end:10, zeroPad:4}), repeat: -1 });
+    this.anims.create({ key: 'jump', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:11, end:20, zeroPad:4}), frameRate: 12, repeat: 0 });
+    this.anims.create({ key: 'pickup', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:21, end:31, zeroPad:4}), repeat: 0 });
+    this.anims.create({ key: 'wakeup', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:32, end:152, zeroPad:4}), repeat: 0 });
+    this.anims.create({ key: 'teleport', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:153, end:248, zeroPad:4}), repeat: 0 });
+    this.anims.create({ key: 'die', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:249, end:318, zeroPad:4}), repeat: 0 });
+    this.anims.create({ key: 'dance', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:319, end:342, zeroPad:4}), repeat: 0 });
+
+    //teleporter
+    this.anims.create({ key: 'all', frames: this.anims.generateFrameNames('g_teleporter'), repeat: -1 });
+
+
+    levelData.level.elements.forEach(element => {
+        //console.log(element.type);
+        if(element.type.indexOf('g_bg') != -1)
+        {
+            var bg = this.matter.add.sprite(0, 0, element.type).setStatic(true).setOrigin(0, 0);
+            bg.setCollidesWith([]);
+            bg.displayWidth = game.config.width;
+            bg.displayHeight = game.config.height;
+        } 
+        else if(element.type.indexOf('jaxi') != -1)
+        {
+            var shapes = {
+                    "jaxiShape": [
+                        [ {"x":0,"y":0}, {"x":89,"y":0}, {"x":89,"y":228}, {"x":0,"y":228}]
+                    ]
+                };
+
+            jaxi = this.matter.add.sprite(element.x, element.y, element.type, null, 
+            {inertia: Infinity,
+            shape: { type: 'fromVerts', verts: shapes.jaxiShape }})
+            .setOrigin(.5, .5);
+
+            jaxi.setBounce(.1);
+            jaxi.setFriction(.5);
+
+            jaxi.setSleepThreshold(10);
+            jaxi.setSleepEvents(true, true);
+
+        } 
+        else if(element.type.indexOf('g_teleporter') != -1)
+        {
+            var sprite = this.matter.add.sprite(element.x, element.y, element.type).setStatic(true);
+            sprite.anims.play('all');
+            sprite.setSensor(true);
+            sprite.isTeleporter = true;
+        }
+        else {
+            var sprite = this.matter.add.sprite(element.x, element.y, element.type).setStatic(true);
+
+            if(element.scenery) sprite.setCollidesWith([]);
+        }
+    });
+
+    this.matter.world.on('sleepstart', function (event) {
+        if(jaxiInterpreter && !levelComplete)
+        {
+            idolJaxi();
+        } 
+    });
+
+    //collision logic
+    this.matter.world.on('collisionstart', function (event, bodyA, bodyB) {
+
+        if((bodyA.gameObject === jaxi || bodyB.gameObject === jaxi) &&
+            ((bodyA.gameObject != null && bodyA.gameObject.isTeleporter) || 
+             (bodyB != null && bodyB.isTeleporter)))
+            {
+                finishLevel();
+            }
+
+    });
+    
+    // waiting for user input
+        this.input.on("pointerdown", function(pointer){
+ 
+            // getting Matter bodies under the pointer
+            var bodiesUnderPointer = Phaser.Physics.Matter.Matter.Query.point(this.matter.world.localWorld.bodies, pointer);
+ 
+            // if there isn't any body under the pointer...
+            //if(bodiesUnderPointer.length == 0){
+ 
+                // create a crate
+                var sprite = this.matter.add.sprite(pointer.x, pointer.y, "teleporter");
+            //}
+ 
+            // this is where I wanted to remove the crate. Unfortunately I did not find a quick way to delete the Sprite
+            // bound to a Matter body, so I am setting it to invisible, then remove the body.
+            //else{
+                //bodiesUnderPointer[0].gameObject.visible = false;
+                //this.matter.world.remove(bodiesUnderPointer[0])
+            //}
+        }, this);
+
+}
+
+function update ()
+{
+}
+
+
+    },
+    runCode: function()
+    {
+        var editor = ace.edit("editor");
+        this.code = editor.getSession().getValue();
+
+        var initFunc = function(interpreter, scope) {
+
+             interpreter.setProperty(scope, 'dance',
+                 interpreter.createNativeFunction(dance));
+
+            interpreter.setProperty(scope, 'jump',
+                 interpreter.createNativeFunction(jump));
+
+            interpreter.setProperty(scope, 'run',
+                 interpreter.createNativeFunction(run));
+        };
+        
+        jaxiInterpreter = new Interpreter(this.code, initFunc);
+        nextStep();
+    }
+    
+
+  }
+}
+
+function dance()
+{
+    codePause = true;
+    jaxi.anims.play('dance');
+    window.setTimeout(idolJaxi, 1000);
+}
+
+function jump(speed)
+{
+    if(speed > 5) speed = 5;
+    if(speed < -5) speed = -5;
+
+    if(speed == null)
+    {
+        speed = 10;
+    } else {
+        speed *= 10;
+    }
+    codePause = true;
+    jaxi.body.isSleeping = false;
+    jaxi.anims.play('jump');
+    jaxi.setVelocity(speed, -Math.abs(speed));
+
+    jaxi.setFlipX(speed <= 0);
+}
+
+function run(speed)
+{
+    if(speed > 5) speed = 5;
+    if(speed < -5) speed = -5;
+
+    if(speed == null)
+    {
+        speed = 30;
+    } else {
+        speed *= 30;
+    }
+    codePause = true;
+    jaxi.body.isSleeping = false;
+    jaxi.anims.play('run');
+    jaxi.setVelocity(speed, 0);
+
+    jaxi.setFlipX(speed <= 0);
+}
+
+function idolJaxi()
+{
+    jaxi.anims.play('idol');
+    nextStep();
+}
+
+function finishLevel()
+{
+    saveState();
+    levelComplete = codePause = true;
+    jaxi.anims.play('teleport');
+    window.setTimeout(function(){
+        vue.fadeOut();
+        window.setTimeout(function (){
+            router.push({ name: 'Game', params: { level: (levelNum + 1)}})
+            location.reload(); //TODO: find a way to clear the memory space, and smoothly transition between pages... Why? So we can stick to the SPA vue paradigm.
+        }, 650);
+        
+    }, 2000);   
+}
+
+function restartLevel()
+{
+    saveState();
+    levelComplete = codePause = true;
+    jaxi.anims.play('die');
+    window.setTimeout(function(){
+        vue.fadeOut();
+        window.setTimeout(function (){
+            location.reload(); //TODO: find a way to clear the memory space, and smoothly transition between pages... Why? So we can stick to the SPA vue paradigm.
+        }, 650);
+        
+    }, 2000);   
+}
+
+function saveState()
+{
+    localStorage.setItem('code_' + levelNum, vue.code);
+}
+
+function nextStep() {
+    codePause = false;
+    do{
+        try{
+            var hasMoreCode = jaxiInterpreter.step();
+        } finally
+        {
+            if(!hasMoreCode)
+            {
+                //level not solved
+                restartLevel();
+            }
+        }
+    } while(hasMoreCode && !codePause);
+}
+
+
+    
+
+</script>
+
+<style>
+  @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
+  /* @import '../../../node_modules/bootstrap/scss/bootstrap.scss'; */
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body { font-family: 'Source Sans Pro', sans-serif; }
+
+.game-screen
+{
+    overflow: hidden;
+}
+
+  .code-area
+{
+    background-color: #000000;
+    height: 100vh;
+    width:500px;
+    float: left;
+}
+
+.game-area
+{
+    background-color: black;
+    height: 100vh;
+    width:calc(100vw - 500px);
+    float: left;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+  
+</style>
