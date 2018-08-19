@@ -27,7 +27,7 @@
         var vue = this;
         window.setTimeout(function (){
           vue.isShowing = false;
-        }, 1400);
+        }, 1000);
       },
       fadeIn() {
         this.isShowing = true;
@@ -56,7 +56,7 @@ html, body{
   right:0px;
   left:0px;
   background-color: black;
-  z-index: 1000;
+  z-index: 999999;
 }
 
 fade-enter-active, .fade-leave-active {

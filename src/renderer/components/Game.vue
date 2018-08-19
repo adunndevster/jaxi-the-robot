@@ -76,10 +76,15 @@ export default {
 levelNum = Number(this.$route.params.level);
 var levelData = require('../assets/levels/level' + this.$route.params.level + '.js');
 
+var gameArea = document.getElementsByClassName('game-area')[0];
+// var gWidth = Math.floor(window.innerWidth * .7);
+// var gHeight = window.innerHeight;
+var devRatio = 2048 / 1806; //1244 / 1095 // 1.33
+var wAdjust = Math.round(((gameArea.clientWidth / gameArea.clientHeight) - devRatio) * gameArea.clientWidth);
 
 var config = {
     type: Phaser.AUTO,
-    width: levelData.bounds.w,
+    width: levelData.bounds.w + wAdjust,
     height: levelData.bounds.h,
     parent: 'gameCanvas',
     physics: {
@@ -362,19 +367,20 @@ function nextStep() {
 </script>
 
 <style>
-  @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
-  /* @import '../../../node_modules/bootstrap/scss/bootstrap.scss'; */
-
+  
   * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
   }
 
-  body { font-family: 'Source Sans Pro', sans-serif; }
+  body { 
+    font-family: 'Source Sans Pro', sans-serif;
+   }
 
 .game-screen
 {
+    white-space: nowrap;
     overflow: hidden;
 }
 
@@ -382,7 +388,7 @@ function nextStep() {
 {
     background-color: #000000;
     height: 100vh;
-    width:500px;
+    width:29vw;
     float: left;
 }
 
@@ -390,7 +396,7 @@ function nextStep() {
 {
     background-color: black;
     height: 100vh;
-    width:calc(100vw - 500px);
+    width:71vw;
     float: left;
 }
 
