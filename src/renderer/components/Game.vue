@@ -113,12 +113,14 @@ function preload ()
     this.load.image("g_bg_" + levelData.zone, require("../assets/toybox/g_bg_" + levelData.zone + ".png"));
     this.load.image("g_ground_" + levelData.zone, require("../assets/toybox/g_ground_"  + levelData.zone + ".png"));
     this.load.image("g_ground_rounded_" + levelData.zone, require("../assets/toybox/g_ground_rounded_" + levelData.zone + ".png"));
+    this.load.image("g_ground_rounded2_" + levelData.zone, require("../assets/toybox/g_ground_rounded2_" + levelData.zone + ".png"));
     this.load.image("g_earth_" + levelData.zone, require("../assets/toybox/g_earth_" + levelData.zone + ".png"));
     this.load.atlas("g_teleporter", require("../assets/toybox/TeleporterSprites.png"), require("../assets/toybox/TeleporterSprites.json"));
     this.load.image("g_teleporter", require("../assets/toybox/g_teleporter.png"));
 
     //scenery
-    var sceneryFiles = ['g_sc_bluebotbuilding.png', 'g_sc_junk_silhouette1.png', 'g_sc_rock1.png', 'g_sc_rocks.png', 'g_sc_trashclump1.png'];
+    var sceneryFiles = ['g_sc_bluebotbuilding.png', 'g_sc_junk_silhouette1.png', 'g_sc_rock1.png', 'g_sc_rocks.png', 'g_sc_trashclump1.png',
+                        'g_sc_container.png', 'g_sc_rock2.png'];
     sceneryFiles.forEach(file => {
         this.load.image(file.split('.')[0], require('../assets/toybox/scenery/' + file));
     });
@@ -295,7 +297,7 @@ function run(speed)
     {
         speed = 30;
     } else {
-        speed *= 30;
+        speed = (speed > 0) ? 30 + ((speed-1) * 12) : -30 - ((speed+1) * -12);
     }
     codePause = true;
     jaxi.body.isSleeping = false;
