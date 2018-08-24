@@ -7,7 +7,7 @@
         </div>
         <div class="row">
           <div class="col" v-for="n in 5">
-            <router-link to="/Game/1"><div class="level">{{n + 5 + Number(startLevel)}}</div></router-link>
+            <a href="#" v-on:click="gotoLevel(n + 5 + Number(startLevel))"><div class="level">{{n + 5 + Number(startLevel)}}</div></a>
           </div>
         </div>
       </div>

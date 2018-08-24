@@ -38,6 +38,7 @@ var codePause = false;
 var levelComplete = false;
 var levelNum = 1;
 var vue;
+var phaser;
 
 export default {
   name: 'level-select',
@@ -108,6 +109,7 @@ var game = new Phaser.Game(config);
 
 function preload ()
 {
+    phaser = this;
 
     this.load.atlas("jaxi", require("../assets/toybox/JaxiSprites.png"), require("../assets/toybox/JaxiSprites.json"));
     this.load.image("g_bg_" + levelData.zone, require("../assets/toybox/g_bg_" + levelData.zone + ".png"));
@@ -115,12 +117,13 @@ function preload ()
     this.load.image("g_ground_rounded_" + levelData.zone, require("../assets/toybox/g_ground_rounded_" + levelData.zone + ".png"));
     this.load.image("g_ground_rounded2_" + levelData.zone, require("../assets/toybox/g_ground_rounded2_" + levelData.zone + ".png"));
     this.load.image("g_earth_" + levelData.zone, require("../assets/toybox/g_earth_" + levelData.zone + ".png"));
+    this.load.image("g_spikes", require("../assets/toybox/g_spikes.png"));
     this.load.atlas("g_teleporter", require("../assets/toybox/TeleporterSprites.png"), require("../assets/toybox/TeleporterSprites.json"));
     this.load.image("g_teleporter", require("../assets/toybox/g_teleporter.png"));
 
     //scenery
     var sceneryFiles = ['g_sc_bluebotbuilding.png', 'g_sc_junk_silhouette1.png', 'g_sc_rock1.png', 'g_sc_rocks.png', 'g_sc_trashclump1.png',
-                        'g_sc_container.png', 'g_sc_rock2.png'];
+                        'g_sc_container.png', 'g_sc_rock2.png', 'g_sc_crane.png', 'g_sc_fence.png'];
     sceneryFiles.forEach(file => {
         this.load.image(file.split('.')[0], require('../assets/toybox/scenery/' + file));
     });
@@ -182,6 +185,12 @@ function create ()
             sprite.setSensor(true);
             sprite.isTeleporter = true;
         }
+        else if(element.type.indexOf('g_spikes') != -1)
+        {
+            var sprite = this.matter.add.sprite(element.x, element.y, element.type).setStatic(true);
+            sprite.setSensor(true);
+            sprite.isSpikes = true;
+        }
         else {
             var sprite = this.matter.add.sprite(element.x, element.y, element.type).setStatic(true);
 
@@ -199,12 +208,20 @@ function create ()
     //collision logic
     this.matter.world.on('collisionstart', function (event, bodyA, bodyB) {
 
+        //teleporter
         if((bodyA.gameObject === jaxi || bodyB.gameObject === jaxi) &&
-            ((bodyA.gameObject != null && bodyA.gameObject.isTeleporter) || 
-             (bodyB != null && bodyB.isTeleporter)))
-            {
-                finishLevel();
-            }
+        ((bodyA.gameObject != null && bodyA.gameObject.isTeleporter) || 
+            (bodyB != null && bodyB.isTeleporter)))
+        {
+            finishLevel();
+        }
+
+        if((bodyA.gameObject === jaxi || bodyB.gameObject === jaxi) &&
+        ((bodyA.gameObject != null && bodyA.gameObject.isSpikes) || 
+            (bodyB != null && bodyB.isSpikes)))
+        {
+            restartLevel();
+        }
 
     });
     
@@ -271,19 +288,21 @@ function dance()
 
 function jump(speed)
 {
+    var isNeg = speed < 0;
     if(speed > 5) speed = 5;
     if(speed < -5) speed = -5;
 
-    if(speed == null)
+    if(speed == null || speed == 0)
     {
-        speed = 10;
+        speed = 10; 
     } else {
-        speed *= 10;
+        speed = 10 + (10 * ((Math.abs(speed)-1)/Math.abs(speed)));
     }
+    if(isNeg) speed = -speed;
     codePause = true;
     jaxi.body.isSleeping = false;
     jaxi.anims.play('jump');
-    jaxi.setVelocity(speed, -Math.abs(speed));
+    jaxi.setVelocity(speed/2, -Math.abs(speed));
 
     jaxi.setFlipX(speed <= 0);
 }
@@ -307,6 +326,51 @@ function run(speed)
     jaxi.setFlipX(speed <= 0);
 }
 
+//experiments in better running
+// function run(speed)
+// {
+//     var sign = (speed < 0) ? -1 : 1;
+//     if(speed > 5) speed = 5;
+//     if(speed < -5) speed = -5;
+
+//     // if(speed == null || speed == 0)
+//     // {
+//     //     speed = 30;
+//     // } else {
+//     //     speed = (speed > 0) ? 30 + ((speed-1) * 12) : -30 - ((speed+1) * -12);
+//     // }
+//     //speed *= 200;
+//     codePause = true;
+//     jaxi.body.isSleeping = false;
+//     jaxi.anims.play('run');
+//     jaxi.setVelocity(30 * sign, 0);
+
+//     var count = 0;
+//     var interval = window.setInterval(function(){
+//         if(count < Math.abs(speed) - 1) {
+//             jaxi.setVelocity(30 * sign, 0);
+//             count++;
+//             console.log('run');
+//         } else {
+//             console.log('done');
+//             window.clearInterval(interval);
+//         }
+//     }, 300);
+
+//     // var pos = {x: jaxi.x};
+//     // phaser.tweens.add({
+//     //             targets: pos,
+//     //             x: jaxi.x + speed,
+//     //             ease: 'Quad.easeInOut',
+//     //             duration: 300,
+//     //             //onUpdate: function() { jaxi.setPosition(pos.x, jaxi.y); },
+//     //             onComplete: function() { jaxi.setVelocity(10) }
+//     //         });
+
+
+//     jaxi.setFlipX(speed <= 0);
+// }
+
 function idolJaxi()
 {
     jaxi.anims.play('idol');
@@ -315,6 +379,9 @@ function idolJaxi()
 
 function finishLevel()
 {
+    jaxi.setBounce(0);
+    jaxi.setFriction(1000);
+    jaxi.setVelocity(0, 0);
     saveState();
     levelComplete = codePause = true;
     jaxi.anims.play('teleport');
@@ -330,6 +397,9 @@ function finishLevel()
 
 function restartLevel()
 {
+    jaxi.setBounce(0);
+    jaxi.setFriction(1000);
+    jaxi.setVelocity(0, 0);
     saveState();
     levelComplete = codePause = true;
     jaxi.anims.play('die');
