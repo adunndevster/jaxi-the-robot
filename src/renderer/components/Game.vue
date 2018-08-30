@@ -1,23 +1,48 @@
 <template>
 <div class="game-screen">
   <div class="code-area">
-    <div> </div>
-    <div>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a @click="setCodeMode('main')" class="nav-link" v-bind:class="{ active:(codeMode == 'main') }">Main</a>
+            </li>
+            <li class="nav-item">
+                <a @click="setCodeMode('functions')" class="nav-link" v-bind:class="{ active:(codeMode == 'functions') }">My functions</a>
+            </li>
+            <li class="nav-item">
+                <a @click="setCodeMode('api')" class="nav-link" v-bind:class="{ active:(codeMode == 'api') }">API</a>
+            </li>
+        </ul>
+        
+    <div id="mainCode" v-bind:class="{ hidden:(codeMode != 'main')}">
+        <div>
+        <editor id="editor"
+            style="height: calc(100vh - 90px); width:100%; overflow: auto;" 
+            @init="editorInit" 
+            lang="javascript" 
+            theme="monokai"
+            value=""></editor>
 
-       <editor id="editor"
-        style="height: calc(100vh - 90px); width:100%; overflow: auto;" 
-        @init="editorInit" 
-        lang="javascript" 
-        theme="monokai"
-        value=""></editor>
-
+        </div>
+        <div>
+            <button v-on:click="runCode" value="Run Code" class="btn btn-dark float-right">Run Code</button>
+        </div>
     </div>
-    <div style="padding: 20px;">
-        <router-link to="/LevelSelect">Level Select</router-link>
-        <button v-on:click="runCode" value="Run Code" class="btn btn-dark float-right">Run Code</button>
+
+    <div id="funcs" v-bind:class="{ hidden:(codeMode != 'functions')}">
+        <div>
+            <editor id="functionsEditor"
+                style="height: calc(100vh - 90px); width:100%; overflow: auto;" 
+                lang="javascript" 
+                theme="monokai"
+                value=""></editor>
+
+        </div>
     </div>
     
-    
+    <div id="api" v-bind:class="{ hidden:(codeMode != 'api')}">
+        <api />
+    </div>
+
   </div>
   <div class="game-area">
       <div id='gameCanvas'></div>
@@ -30,6 +55,7 @@ import router from '../router'
 import Phaser from 'phaser'
 import Interpreter from 'js-interpreter';
 import { clearInterval, setTimeout } from 'timers';
+import API from './API/API'
 
 
 var jaxi;
@@ -44,18 +70,28 @@ export default {
   name: 'level-select',
   components: {
     editor: require('vue2-ace-editor'),
+    api: API
   },
   data() {
         return {
-            code: ''
+            code: '',
+            functions: '',
+            codeMode: 'main' //main, functions, api
         }
     },
   mounted() {
     this.code = localStorage.getItem('code_' + levelNum);
+    this.functions = localStorage.getItem('jaxiFunctions');
     var editor = ace.edit("editor");
+    var functionsEditor = ace.edit("functionsEditor");
     editor.getSession().setValue(this.code);
+    functionsEditor.getSession().setValue(this.functions);
   },
   methods: {
+    setCodeMode: function(mode)
+    {
+        this.codeMode = mode;
+    },
     fadeOut: function() {
         this.$emit("fadeFunc", true);
     },
@@ -257,7 +293,10 @@ function update ()
     runCode: function()
     {
         var editor = ace.edit("editor");
+        var functionsEditor = ace.edit("functionsEditor");
         this.code = editor.getSession().getValue();
+        this.functions = functionsEditor.getSession().getValue();
+        var execCode = this.functions + this.code;
 
         var initFunc = function(interpreter, scope) {
 
@@ -270,9 +309,10 @@ function update ()
             interpreter.setProperty(scope, 'run',
                  interpreter.createNativeFunction(run));
         };
-        
-        jaxiInterpreter = new Interpreter(this.code, initFunc);
+
+        jaxiInterpreter = new Interpreter(execCode, initFunc);
         nextStep();
+        
     }
     
 
@@ -415,13 +455,37 @@ function restartLevel()
 function saveState()
 {
     localStorage.setItem('code_' + levelNum, vue.code);
+    localStorage.setItem('jaxiFunctions', vue.functions);
 }
 
+var range;
 function nextStep() {
     codePause = false;
     do{
         try{
             var hasMoreCode = jaxiInterpreter.step();
+            if (jaxiInterpreter.stateStack.length) {
+                var node =
+                    jaxiInterpreter.stateStack[jaxiInterpreter.stateStack.length - 1].node;
+                var start = node.start;
+                var end = node.end;
+            } else {
+                var start = 0;
+                var end = 0;
+            }
+            var activeCode = vue.code.substring(start, end);
+
+            var editor = ace.edit("editor");
+            editor.focus();
+            if(range != null) range.start.row = (range.start.row > 1) ? range.start.row - 2 : range.start.row;
+            range = editor.find(activeCode, {start:range}, true);
+            //editor.addSelectionMarker(range);
+            //createSelection(start, end);
+
+            // var activeCode = vue.code.substring(start, end);
+            // console.clear();
+            // console.log(activeCode);
+
         } finally
         {
             if(!hasMoreCode)
@@ -433,6 +497,23 @@ function nextStep() {
     } while(hasMoreCode && !codePause);
 }
 
+function createSelection(start, end) {
+
+    var field = document.getElementsByClassName('ace_text-input')[0];
+    if (field.createTextRange) {
+    var selRange = field.createTextRange();
+    selRange.collapse(true);
+    selRange.moveStart('character', start);
+    selRange.moveEnd('character', end);
+    selRange.select();
+    } else if (field.setSelectionRange) {
+    field.setSelectionRange(start, end);
+    } else if (field.selectionStart) {
+    field.selectionStart = start;
+    field.selectionEnd = end;
+    }
+    field.focus();
+}
 
     
 
@@ -440,6 +521,11 @@ function nextStep() {
 
 <style>
   
+@font-face {
+  font-family: Righteous;
+  src: url('~@/assets/fonts/Righteous-Regular.ttf');
+}
+
   * {
     box-sizing: border-box;
     margin: 0;
@@ -478,5 +564,17 @@ canvas {
   object-fit: contain;
 }
 
-  
+.hidden
+{
+    display: none;
+}
+
+#api{
+    width: 100%;
+    height: 100%;
+    white-space: normal;
+    overflow: auto;
+    background-color: white;
+}
+
 </style>
