@@ -21,61 +21,17 @@
           <div class="section">
             <h4>Jaxi's Functions</h4>
             <p>Here is a collection of Jaxi's functions. Once you know what these functions do, there's no limit to the things Jaxi can conquer!</p>
+            <br><br>
+            <principle property="run([speed])"
+                       :paramsArray="['speed: A number from -5 to 5 that tells Jaxi how fast to run. Optional. Default is 1.']"
+                       description="Makes Jaxi run! putting a number in the function will make her move all the faster. Putting a negative number in the function, will make her run left."
+                       />
 
-            <div class="principle">
-              <h4>run([speed])</h4>
-              <p>Makes Jaxi run! putting a number in the function will make her move all the faster. Putting a negative number in the function, will make her run left.</p>
-            </div>
+            <principle property="jump([power])"
+                       :paramsArray="['power: A number from -5 to 5 that tells Jaxi how high to jump. Optional. Default is 1.']"
+                       description="Makes Jaxi jump! putting a number in the function will make her jump higher. Putting a negative number in the function, will make her jump left."
+                       />
 
-            <div class="principle">
-              <h4>run([speed])</h4>
-              <p>Makes Jaxi run! putting a number in the function will make her move all the faster. Putting a negative number in the function, will make her run left.</p>
-            </div>
-
-            <div class="principle">
-              <h4>run([speed])</h4>
-              <p>Makes Jaxi run! putting a number in the function will make her move all the faster. Putting a negative number in the function, will make her run left.</p>
-            </div>
-
-            <div class="principle">
-              <h4>run([speed])</h4>
-              <p>Makes Jaxi run! putting a number in the function will make her move all the faster. Putting a negative number in the function, will make her run left.</p>
-            </div>
-
-            <div class="principle">
-              <h4>run([speed])</h4>
-              <p>Makes Jaxi run! putting a number in the function will make her move all the faster. Putting a negative number in the function, will make her run left.</p>
-            </div>
-
-            <div class="principle">
-              <h4>run([speed])</h4>
-              <p>Makes Jaxi run! putting a number in the function will make her move all the faster. Putting a negative number in the function, will make her run left.</p>
-            </div>
-
-            <div class="principle">
-              <h4>run([speed])</h4>
-              <p>Makes Jaxi run! putting a number in the function will make her move all the faster. Putting a negative number in the function, will make her run left.</p>
-            </div>
-
-            <div class="principle">
-              <h4>run([speed])</h4>
-              <p>Makes Jaxi run! putting a number in the function will make her move all the faster. Putting a negative number in the function, will make her run left.</p>
-            </div>
-
-            <div class="principle">
-              <h4>run([speed])</h4>
-              <p>Makes Jaxi run! putting a number in the function will make her move all the faster. Putting a negative number in the function, will make her run left.</p>
-            </div>
-
-            <div id="run" class="principle">
-              <h4>Brun([speed])</h4>
-              <p>Makes Jaxi run! putting a number in the function will make her move all the faster. Putting a negative number in the function, will make her run left.</p>
-            </div>
-
-            <div class="principle">
-              <h4>run([speed])</h4>
-              <p>Makes Jaxi run! putting a number in the function will make her move all the faster. Putting a negative number in the function, will make her run left.</p>
-            </div>
 
           </div>
           
@@ -90,11 +46,13 @@
 //import VueAsyncData from 'vue-async-data';
 import Vue from 'vue/dist/vue';
 import VueScrollTo from 'vue-scrollto';
+import Principle from './Principle'
 window.Vue = Vue;
 
   export default {
     name: 'api',
     props: [],
+    components: {Principle}, 
     methods: {
       scrollToPosition(el)
       {

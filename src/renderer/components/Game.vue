@@ -23,8 +23,9 @@
             value=""></editor>
 
         </div>
-        <div>
-            <button v-on:click="runCode" value="Run Code" class="btn btn-dark float-right">Run Code</button>
+        <div class="action-buttons">
+            <button v-on:click="runCode" value="Run Code" class="btn-run-code btn btn-dark float-right" :disabled="runCodeDisabled">Run Code</button>
+            <router-link to="/level-select" class="btn btn-dark float-right">Level Select</router-link>
         </div>
     </div>
 
@@ -51,32 +52,39 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import router from '../router'
 import Phaser from 'phaser'
 import Interpreter from 'js-interpreter';
 import { clearInterval, setTimeout } from 'timers';
 import API from './API/API'
+import SpeechBubble from './Game/SpeechBubble'
 
 
-var jaxi;
+var jaxi, chopperbot;
 var jaxiInterpreter;
 var codePause = false;
 var levelComplete = false;
 var levelNum = 1;
 var vue;
 var phaser;
+var game;
 
 export default {
   name: 'level-select',
   components: {
     editor: require('vue2-ace-editor'),
-    api: API
+    api: API,
+    speechbubble: SpeechBubble
   },
   data() {
         return {
             code: '',
             functions: '',
-            codeMode: 'main' //main, functions, api
+            codeMode: 'main', //main, functions, api
+            animationStep: 0,
+            animationArray: [],
+            runCodeDisabled: true
         }
     },
   mounted() {
@@ -86,6 +94,8 @@ export default {
     var functionsEditor = ace.edit("functionsEditor");
     editor.getSession().setValue(this.code);
     functionsEditor.getSession().setValue(this.functions);
+
+    
   },
   methods: {
     setCodeMode: function(mode)
@@ -141,7 +151,7 @@ var config = {
     }
 };
 
-var game = new Phaser.Game(config);
+game = new Phaser.Game(config);
 
 function preload ()
 {
@@ -156,6 +166,8 @@ function preload ()
     this.load.image("g_spikes", require("../assets/toybox/g_spikes.png"));
     this.load.atlas("g_teleporter", require("../assets/toybox/TeleporterSprites.png"), require("../assets/toybox/TeleporterSprites.json"));
     this.load.image("g_teleporter", require("../assets/toybox/g_teleporter.png"));
+    this.load.atlas("g_chopperbot", require("../assets/toybox/ChopperbotSprites.png"), require("../assets/toybox/ChopperbotSprites.json"));
+    this.load.image("g_chopperbot", require("../assets/toybox/ChopperbotSprites.png"));
 
     //scenery
     var sceneryFiles = ['g_sc_bluebotbuilding.png', 'g_sc_junk_silhouette1.png', 'g_sc_rock1.png', 'g_sc_rocks.png', 'g_sc_trashclump1.png',
@@ -183,6 +195,9 @@ function create ()
 
     //teleporter
     this.anims.create({ key: 'all', frames: this.anims.generateFrameNames('g_teleporter'), repeat: -1 });
+
+    //chopperbot
+    this.anims.create({ key: 'all_chopperbot', frames: this.anims.generateFrameNames('g_chopperbot'), repeat: -1 });
 
 
     levelData.level.elements.forEach(element => {
@@ -213,6 +228,10 @@ function create ()
             jaxi.setSleepThreshold(10);
             jaxi.setSleepEvents(true, true);
 
+        }
+        else if(element.type.indexOf('Script') != -1)
+        {
+            vue.animationArray = eval(element.script);
         } 
         else if(element.type.indexOf('g_teleporter') != -1)
         {
@@ -220,6 +239,12 @@ function create ()
             sprite.anims.play('all');
             sprite.setSensor(true);
             sprite.isTeleporter = true;
+        }
+        else if(element.type.indexOf('g_chopperbot') != -1)
+        {
+            chopperbot = this.matter.add.sprite(element.x, element.y, element.type).setStatic(true);
+            chopperbot.anims.play('all_chopperbot');
+            chopperbot.setSensor(true);
         }
         else if(element.type.indexOf('g_spikes') != -1)
         {
@@ -234,11 +259,20 @@ function create ()
         }
     });
 
+    if(vue.animationArray.length == 0) vue.runCodeDisabled = false;
+
     this.matter.world.on('sleepstart', function (event) {
+        
+        if(!jaxiInterpreter && (vue.animationStep <= vue.animationArray.length))
+        {
+            jaxi.anims.play('idol');
+        }
+        
         if(jaxiInterpreter && !levelComplete)
         {
             idolJaxi();
-        } 
+        }
+ 
     });
 
     //collision logic
@@ -282,6 +316,8 @@ function create ()
             //}
         }, this);
 
+        vue.runLevelAnimation();
+
 }
 
 function update ()
@@ -292,6 +328,7 @@ function update ()
     },
     runCode: function()
     {
+        this.runCodeDisabled = true;
         var editor = ace.edit("editor");
         var functionsEditor = ace.edit("functionsEditor");
         this.code = editor.getSession().getValue();
@@ -313,12 +350,53 @@ function update ()
         jaxiInterpreter = new Interpreter(execCode, initFunc);
         nextStep();
         
+    },
+    runLevelAnimation: function()
+    {   
+        if(vue.animationArray != []) this.nextAnimationStep();
+    },
+    nextAnimationStep: function()
+    {
+        if(vue.animationStep < vue.animationArray.length)
+        {
+            var animProps = vue.animationArray[vue.animationStep];
+            animProps.func(animProps.params);
+            vue.animationStep++;
+            this.runCodeDisabled = vue.animationStep < vue.animationArray.length;
+        }
+    },
+    say: function(dialogueArray)
+    {
+        //dialagueArray example:
+        // [{character:jaxi, text:"This is what a whole munch of text looks like. It's going to affect a bunch when it comes to styling this sucker."},
+        // {character:chopperbot, text:"Pretty neat, huh?"},
+        // {character:jaxi, text:"I think so."}]
+
+        var bubble = new (Vue.extend(SpeechBubble))(
+            {
+                created() {
+                    const EVENTS = [
+                        {name: 'nextAnim', callback: () => vue.nextAnimationStep()}
+                    ]
+
+                    for (let e of EVENTS) {
+                        this.$on(e.name, e.callback); // Add event listeners
+                    }
+                }
+
+                
+            }
+        );
+        bubble.$mount();
+        vue.$el.appendChild(bubble.$el);
+        bubble.startDialogue(dialogueArray, game);
     }
     
 
   }
 }
 
+//jaxi///////////////////
 function dance()
 {
     codePause = true;
@@ -365,6 +443,28 @@ function run(speed)
 
     jaxi.setFlipX(speed <= 0);
 }
+/////////////////////////
+
+//chopperbot//////////////
+function chopperbot_flyAway()
+{
+    chopperbot.body.isSleeping = true;
+    phaser.tweens.add({
+                targets: chopperbot,
+                y: -800,
+                ease: 'Quad.easeIn',
+                duration: 2200,
+                //onUpdate: function() { },
+                onComplete: function() { 
+                    chopperbot.destroy();
+                    vue.nextAnimationStep();
+                }
+            });
+
+    
+}
+/////////////////////////   
+
 
 //experiments in better running
 // function run(speed)
@@ -415,6 +515,7 @@ function idolJaxi()
 {
     jaxi.anims.play('idol');
     nextStep();
+    vue.nextAnimationStep();
 }
 
 function finishLevel()
@@ -548,6 +649,43 @@ function createSelection(start, end) {
     height: 100vh;
     width:29vw;
     float: left;
+}
+.nav-tabs .nav-link
+{
+    color:white !important;
+    cursor: pointer;
+}
+.nav-tabs .nav-link.active
+{
+    color:black !important;
+}
+.action-buttons
+{
+    padding: 0px;
+}
+.btn{
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
+}
+.btn-dark{
+    background-color: #343a40;
+}
+.btn-dark:hover{
+    background-color: #454a51;
+}
+
+.btn-run-code
+{
+    background-color: #596F14;
+}
+.btn-run-code:disabled:hover
+{
+    background-color: #343a40;
+}
+.btn-run-code:hover
+{
+    background-color: #B2D251;
 }
 
 .game-area
