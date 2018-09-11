@@ -14,7 +14,7 @@
 <script>
 
   export default {
-    name: 'principle',
+    name: 'speechbubble',
     data(){
       return {
         currentPos: 0,
@@ -62,11 +62,6 @@
         this.currentPos++;
       }
     }
-    // data () {
-    //   return {
-    //     startLevel:0
-    //   }
-    // }
   }
 </script>
 

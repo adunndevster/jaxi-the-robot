@@ -59,6 +59,7 @@ import Interpreter from 'js-interpreter';
 import { clearInterval, setTimeout } from 'timers';
 import API from './API/API'
 import SpeechBubble from './Game/SpeechBubble'
+import ToolTip from './Game/ToolTip'
 
 
 var jaxi, chopperbot;
@@ -239,6 +240,13 @@ function create ()
             sprite.anims.play('all');
             sprite.setSensor(true);
             sprite.isTeleporter = true;
+            sprite.setInteractive();
+            sprite.on('pointerover', function () {
+                sprite.toolTip = vue.showToolTip([{character:sprite, text:'teleporter'}]);
+            });
+            sprite.on('pointerout', function () {
+                sprite.toolTip.destroy();
+            });
         }
         else if(element.type.indexOf('g_chopperbot') != -1)
         {
@@ -345,6 +353,9 @@ function update ()
 
             interpreter.setProperty(scope, 'run',
                  interpreter.createNativeFunction(run));
+
+            interpreter.setProperty(scope, 'touches',
+                 interpreter.createNativeFunction(touches));
         };
 
         jaxiInterpreter = new Interpreter(execCode, initFunc);
@@ -390,6 +401,14 @@ function update ()
         bubble.$mount();
         vue.$el.appendChild(bubble.$el);
         bubble.startDialogue(dialogueArray, game);
+    },
+    showToolTip: function(toolTipArray)
+    {
+        var toolTip = new (Vue.extend(ToolTip))();
+        toolTip.$mount();
+        vue.$el.appendChild(toolTip.$el);
+        toolTip.showToolTip(toolTipArray, game);
+        return toolTip;
     }
     
 
@@ -442,6 +461,10 @@ function run(speed)
     jaxi.setVelocity(speed, 0);
 
     jaxi.setFlipX(speed <= 0);
+}
+function touches(item)
+{
+    alert('touching?');
 }
 /////////////////////////
 
@@ -547,6 +570,7 @@ function restartLevel()
     window.setTimeout(function(){
         vue.fadeOut();
         window.setTimeout(function (){
+            router.push({ name: 'Game', params: { level: (levelNum)}})
             location.reload(); //TODO: find a way to clear the memory space, and smoothly transition between pages... Why? So we can stick to the SPA vue paradigm.
         }, 650);
         
@@ -587,6 +611,9 @@ function nextStep() {
             // console.clear();
             // console.log(activeCode);
 
+        } catch(error)
+        {
+            console.log(error);
         } finally
         {
             if(!hasMoreCode)
