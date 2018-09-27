@@ -26,8 +26,7 @@ function createWindow () {
     backgroundColor: '#000000'
   })
 
-
-  mainWindow.setFullScreen(true);
+  mainWindow.setFullScreen(true)
 
   mainWindow.loadURL(winURL)
 
@@ -49,6 +48,19 @@ app.on('activate', () => {
     createWindow()
   }
 })
+
+// debug stuffs.
+// require('electron-debug')({ showDevTools: true })
+// require('electron').app.on('ready', () => {
+//   let installExtension = require('electron-devtools-installer')
+//   installExtension.default(installExtension.VUEJS_DEVTOOLS)
+//     .then(() => {})
+//     .catch(err => {
+//       alert('Unable to install `vue-devtools`: \n', err)
+//     })
+
+//   mainWindow.openDevTools()
+// })
 
 /**
  * Auto Updater

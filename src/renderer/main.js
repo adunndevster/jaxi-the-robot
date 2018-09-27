@@ -1,14 +1,14 @@
 import Vue from 'vue'
-import BootstrapVue from 'bootstrap-vue/dist/bootstrap-vue.esm';
+import BootstrapVue from 'bootstrap-vue/dist/bootstrap-vue.esm'
 import axios from 'axios'
 
 import App from './App'
 import router from './router'
 import store from './store'
-import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap-vue/dist/bootstrap-vue.css';
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 
-Vue.use(BootstrapVue);
+Vue.use(BootstrapVue)
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
@@ -21,4 +21,3 @@ new Vue({
   store,
   template: '<App/>'
 }).$mount('#app')
-

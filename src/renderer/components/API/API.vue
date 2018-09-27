@@ -42,47 +42,44 @@
 </template>
 
 <script>
-//import VueResource from 'vue-resource';
-//import VueAsyncData from 'vue-async-data';
-import Vue from 'vue/dist/vue';
-import VueScrollTo from 'vue-scrollto';
+// import VueResource from 'vue-resource';
+// import VueAsyncData from 'vue-async-data';
+import Vue from 'vue/dist/vue'
+import VueScrollTo from 'vue-scrollto'
 import Principle from './Principle'
-window.Vue = Vue;
+window.Vue = Vue
 
-  export default {
-    name: 'api',
-    props: [],
-    components: {Principle}, 
-    methods: {
-      scrollToPosition(el)
-      {
-        VueScrollTo.scrollTo(el);
-      }
-    },
-    mounted: function()
-    {
-      require('smoothscroll-polyfill').polyfill();
-      // You can also pass in the default options
-      Vue.use(VueScrollTo, {
-          container: "#refs",
-          duration: 500,
-          easing: "ease",
-          offset: 0,
-          cancelable: true,
-          onStart: false,
-          onDone: false,
-          onCancel: false,
-          x: false,
-          y: true
-      });
-
+export default {
+  name: 'api',
+  props: [],
+  components: {Principle},
+  methods: {
+    scrollToPosition (el) {
+      VueScrollTo.scrollTo(el)
     }
-    // data () {
-    //   return {
-    //     startLevel:0
-    //   }
-    // }
+  },
+  mounted: function () {
+    require('smoothscroll-polyfill').polyfill()
+    // You can also pass in the default options
+    Vue.use(VueScrollTo, {
+      container: '#refs',
+      duration: 500,
+      easing: 'ease',
+      offset: 0,
+      cancelable: true,
+      onStart: false,
+      onDone: false,
+      onCancel: false,
+      x: false,
+      y: true
+    })
   }
+  // data () {
+  //   return {
+  //     startLevel:0
+  //   }
+  // }
+}
 </script>
 
 <style>

@@ -12,10 +12,9 @@
 </template>
 
 <script>
-
   export default {
     name: 'speechbubble',
-    data(){
+    data () {
       return {
         currentPos: 0,
         dialogueArray: [],
@@ -24,42 +23,39 @@
     },
     methods:
     {
-      startDialogue(_dialogueArray, game)
-      {
-        this.dialogueArray = _dialogueArray;
-        this.currentPos = 0;
-        this.game = game;
-        this.nextText();
+      startDialogue (_dialogueArray, game) {
+        this.dialogueArray = _dialogueArray
+        this.currentPos = 0
+        this.game = game
+        this.nextText()
       },
-      nextText()
-      {
-        var bubble = document.getElementById('speechBubble');
-        var bubbleText = document.getElementById('bubbleText');
+      nextText () {
+        var bubble = document.getElementById('speechBubble')
+        var bubbleText = document.getElementById('bubbleText')
 
-        if(this.currentPos == this.dialogueArray.length)
-        {
-          this.$emit("nextAnim");
-          bubble.parentElement.removeChild(bubble);
-          return;
+        if (this.currentPos == this.dialogueArray.length) {
+          this.$emit('nextAnim')
+          bubble.parentElement.removeChild(bubble)
+          return
         }
 
-        var obj = this.dialogueArray[this.currentPos];
+        var obj = this.dialogueArray[this.currentPos]
 
-        bubbleText.innerHTML = obj.text;
-        
-        var gameCanvas = document.getElementById('gameCanvas');
-        var gameCanvasRect = gameCanvas.getBoundingClientRect();
-        var wRatio = gameCanvas.offsetWidth/this.game.config.width;
-        var hRatio = gameCanvas.offsetHeight/this.game.config.height;
-        var charX = obj.character.x * wRatio;
-        var charY = obj.character.y * hRatio;
-        var speechBubbleX = gameCanvasRect.left + charX + (30);
-        var speechBubbleY = gameCanvasRect.top + charY - (obj.character.height/4) - (bubbleBody.offsetHeight);
+        bubbleText.innerHTML = obj.text
+  
+        var gameCanvas = document.getElementById('gameCanvas')
+        var gameCanvasRect = gameCanvas.getBoundingClientRect()
+        var wRatio = gameCanvas.offsetWidth / this.game.config.width
+        var hRatio = gameCanvas.offsetHeight / this.game.config.height
+        var charX = obj.character.x * wRatio
+        var charY = obj.character.y * hRatio
+        var speechBubbleX = gameCanvasRect.left + charX + (30)
+        var speechBubbleY = gameCanvasRect.top + charY - (obj.character.height / 4) - (bubbleBody.offsetHeight)
 
-        bubble.style.left = speechBubbleX + 'px';
-        bubble.style.top = speechBubbleY + 'px';
+        bubble.style.left = speechBubbleX + 'px'
+        bubble.style.top = speechBubbleY + 'px'
 
-        this.currentPos++;
+        this.currentPos++
       }
     }
   }

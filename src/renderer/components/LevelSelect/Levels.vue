@@ -16,25 +16,24 @@
 <script>
 import router from '../../router'
 
-  export default {
-    name: 'levels',
-    props: ['startLevel'],
-    methods: {
-      gotoLevel: function(levelNum)
-      {
-        this.$emit("fadeFunc");
-        window.setTimeout(function (){
-            router.push({ name: 'Game', params: { level: (levelNum)}})
-            location.reload(); //TODO: find a way to clear the memory space, and smoothly transition between pages... Why? So we can stick to the SPA vue paradigm.
-        }, 650);
-      }
+export default {
+  name: 'levels',
+  props: ['startLevel'],
+  methods: {
+    gotoLevel: function (levelNum) {
+      this.$emit('fadeFunc')
+      window.setTimeout(function () {
+        router.push({ name: 'Game', params: { level: (levelNum)}})
+        location.reload() // TODO: find a way to clear the memory space, and smoothly transition between pages... Why? So we can stick to the SPA vue paradigm.
+      }, 650)
     }
-    // data () {
-    //   return {
-    //     startLevel:0
-    //   }
-    // }
   }
+  // data () {
+  //   return {
+  //     startLevel:0
+  //   }
+  // }
+}
 </script>
 
 <style>

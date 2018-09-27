@@ -9,10 +9,9 @@
 </template>
 
 <script>
-
   export default {
     name: 'tooltip',
-    data(){
+    data () {
       return {
         currentPos: 0,
         toolTipArray: [],
@@ -21,35 +20,33 @@
     },
     methods:
     {
-      showToolTip(_toolTipArray, game)
-      {
-        this.toolTipArray = _toolTipArray;
-        this.game = game;
+      showToolTip (_toolTipArray, game) {
+        this.toolTipArray = _toolTipArray
+        this.game = game
 
-        var obj = this.toolTipArray[0];
+        var obj = this.toolTipArray[0]
 
-        var toolTip = document.getElementById('toolTip');
-        var toolTipText = document.getElementById('toolTipText');
+        var toolTip = document.getElementById('toolTip')
+        var toolTipText = document.getElementById('toolTipText')
 
-        toolTipText.innerHTML = obj.text;
-        
-        var gameCanvas = document.getElementById('gameCanvas');
-        var gameCanvasRect = gameCanvas.getBoundingClientRect();
-        var wRatio = gameCanvas.offsetWidth/this.game.config.width;
-        var hRatio = gameCanvas.offsetHeight/this.game.config.height;
-        var charX = obj.character.x * wRatio;
-        var charY = obj.character.y * hRatio;
-        var offsetX = (charX < this.game.config.width/2) ? -90 : 30;
-        var toolTipX = gameCanvasRect.left + charX + offsetX;
-        var toolTipY = gameCanvasRect.top + charY - (obj.character.height/4)
+        toolTipText.innerHTML = obj.text
+  
+        var gameCanvas = document.getElementById('gameCanvas')
+        var gameCanvasRect = gameCanvas.getBoundingClientRect()
+        var wRatio = gameCanvas.offsetWidth / this.game.config.width
+        var hRatio = gameCanvas.offsetHeight / this.game.config.height
+        var charX = obj.character.x * wRatio
+        var charY = obj.character.y * hRatio
+        var offsetX = (charX < this.game.config.width / 2) ? -90 : 30
+        var toolTipX = gameCanvasRect.left + charX + offsetX
+        var toolTipY = gameCanvasRect.top + charY - (obj.character.height / 4)
 
-        toolTip.style.left = toolTipX + 'px';
-        toolTip.style.top = toolTipY + 'px';
+        toolTip.style.left = toolTipX + 'px'
+        toolTip.style.top = toolTipY + 'px'
       },
-      destroy()
-      {
-        var toolTip = document.getElementById('toolTip');
-        toolTip.parentElement.removeChild(toolTip);
+      destroy () {
+        var toolTip = document.getElementById('toolTip')
+        toolTip.parentElement.removeChild(toolTip)
       }
     }
   }

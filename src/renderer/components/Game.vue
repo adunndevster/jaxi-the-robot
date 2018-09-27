@@ -24,7 +24,7 @@
 
         </div>
         <div class="action-buttons">
-            <button v-on:click="runCode" value="Run Code" class="btn-run-code btn btn-dark float-right" :disabled="runCodeDisabled">Run Code</button>
+            <button v-on:click="runCode" value="Run Code" class="btn btn-dark float-right btn-run-code" :disabled="runCodeDisabled">Run Code</button>
             <router-link to="/level-select" class="btn btn-dark float-right">Level Select</router-link>
         </div>
     </div>
@@ -62,6 +62,7 @@ import SpeechBubble from './Game/SpeechBubble'
 import ToolTip from './Game/ToolTip'
 
 
+var main = this;
 var jaxi, chopperbot;
 var jaxiInterpreter;
 var codePause = false;
@@ -85,7 +86,8 @@ export default {
             codeMode: 'main', //main, functions, api
             animationStep: 0,
             animationArray: [],
-            runCodeDisabled: true
+            runCodeDisabled: true,
+            interactivesArray: []
         }
     },
   mounted() {
@@ -96,7 +98,13 @@ export default {
     editor.getSession().setValue(this.code);
     functionsEditor.getSession().setValue(this.functions);
 
-    
+    var langTools = require('brace/ext/language_tools') //language extension prerequsite...
+
+    editor.setOptions({
+        enableBasicAutocompletion: true,
+        enableSnippets: true,
+        enableLiveAutocompletion: true
+    });
   },
   methods: {
     setCodeMode: function(mode)
@@ -107,22 +115,22 @@ export default {
         this.$emit("fadeFunc", true);
     },
     editorInit: function () {
-        // require('brace/ext/language_tools') //language extension prerequsite...
         // require('brace/mode/html')                
         require('brace/mode/javascript')    //language
         // require('brace/mode/less')
         require('brace/theme/monokai')
         
+        vue = this; 
+        
         this.runGame();
-
-        vue = this;
 
     },
     runGame: function()
     {
 
 levelNum = Number(this.$route.params.level);
-var levelData = require('../assets/levels/level' + this.$route.params.level + '.js');
+var levelData = require('../assets/levels/level' + levelNum + '.js');
+
 
 var gameArea = document.getElementsByClassName('game-area')[0];
 // var gWidth = Math.floor(window.innerWidth * .7);
@@ -140,7 +148,7 @@ var config = {
         matter: {
             //  gravity: {
             //      x: 0,
-            //      y: 3
+            //      y: 1
             //  },
              enableSleeping: true
         }
@@ -160,6 +168,7 @@ function preload ()
 
     this.load.atlas("jaxi", require("../assets/toybox/JaxiSprites.png"), require("../assets/toybox/JaxiSprites.json"));
     this.load.image("g_bg_" + levelData.zone, require("../assets/toybox/g_bg_" + levelData.zone + ".png"));
+    this.load.image("g_metalladder", require("../assets/toybox/g_metalladder.png"));
     this.load.image("g_ground_" + levelData.zone, require("../assets/toybox/g_ground_"  + levelData.zone + ".png"));
     this.load.image("g_ground_rounded_" + levelData.zone, require("../assets/toybox/g_ground_rounded_" + levelData.zone + ".png"));
     this.load.image("g_ground_rounded2_" + levelData.zone, require("../assets/toybox/g_ground_rounded2_" + levelData.zone + ".png"));
@@ -169,6 +178,8 @@ function preload ()
     this.load.image("g_teleporter", require("../assets/toybox/g_teleporter.png"));
     this.load.atlas("g_chopperbot", require("../assets/toybox/ChopperbotSprites.png"), require("../assets/toybox/ChopperbotSprites.json"));
     this.load.image("g_chopperbot", require("../assets/toybox/ChopperbotSprites.png"));
+    this.load.atlas("g_tar", require("../assets/toybox/TarSprites.png"), require("../assets/toybox/TarSprites.json"));
+    this.load.image("g_tar", require("../assets/toybox/TarSprites.png"));
 
     //scenery
     var sceneryFiles = ['g_sc_bluebotbuilding.png', 'g_sc_junk_silhouette1.png', 'g_sc_rock1.png', 'g_sc_rocks.png', 'g_sc_trashclump1.png',
@@ -193,12 +204,16 @@ function create ()
     this.anims.create({ key: 'teleport', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:153, end:248, zeroPad:4}), repeat: 0 });
     this.anims.create({ key: 'die', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:249, end:318, zeroPad:4}), repeat: 0 });
     this.anims.create({ key: 'dance', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:319, end:342, zeroPad:4}), repeat: 0 });
+    this.anims.create({ key: 'climb', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:343, end:349, zeroPad:4}), repeat: -1 });
 
     //teleporter
     this.anims.create({ key: 'all', frames: this.anims.generateFrameNames('g_teleporter'), repeat: -1 });
 
     //chopperbot
     this.anims.create({ key: 'all_chopperbot', frames: this.anims.generateFrameNames('g_chopperbot'), repeat: -1 });
+
+    //tar
+    this.anims.create({ key: 'all_tar', frames: this.anims.generateFrameNames('g_tar'), repeat: -1 });
 
 
     levelData.level.elements.forEach(element => {
@@ -229,10 +244,6 @@ function create ()
             jaxi.setSleepThreshold(10);
             jaxi.setSleepEvents(true, true);
 
-        }
-        else if(element.type.indexOf('Script') != -1)
-        {
-            vue.animationArray = eval(element.script);
         } 
         else if(element.type.indexOf('g_teleporter') != -1)
         {
@@ -240,13 +251,18 @@ function create ()
             sprite.anims.play('all');
             sprite.setSensor(true);
             sprite.isTeleporter = true;
-            sprite.setInteractive();
-            sprite.on('pointerover', function () {
-                sprite.toolTip = vue.showToolTip([{character:sprite, text:'teleporter'}]);
-            });
-            sprite.on('pointerout', function () {
-                sprite.toolTip.destroy();
-            });
+            vue.setupToolTip(sprite, 'teleporter');
+            vue.interactivesArray.push(sprite);
+        }
+        else if(element.type.indexOf('g_tar') != -1)
+        {
+            var sprite = this.matter.add.sprite(element.x, element.y, element.type).setStatic(true);
+            sprite.anims.play('all_tar');
+            sprite.setSensor(true);
+            sprite.isTar = true;
+            sprite.label = 'tar';
+            vue.setupToolTip(sprite, sprite.label);
+            vue.interactivesArray.push(sprite);
         }
         else if(element.type.indexOf('g_chopperbot') != -1)
         {
@@ -259,11 +275,27 @@ function create ()
             var sprite = this.matter.add.sprite(element.x, element.y, element.type).setStatic(true);
             sprite.setSensor(true);
             sprite.isSpikes = true;
+            vue.setupToolTip(sprite, 'spikes');
+            vue.interactivesArray.push(sprite);
         }
         else {
-            var sprite = this.matter.add.sprite(element.x, element.y, element.type).setStatic(true);
+            var sprite = this.add.tileSprite(element.x, element.y, element.width, element.height, element.type);
+            this.matter.add.gameObject(sprite).setStatic(true);
 
             if(element.scenery) sprite.setCollidesWith([]);
+            if(element.tooltip)
+            {
+                vue.setupToolTip(sprite, element.tooltip);
+                vue.interactivesArray.push(sprite);
+                
+            } 
+            if(element.sensor) sprite.setSensor(true);
+            sprite.type = element.type;
+
+            if(element.type == 'g_metalladder')
+            {
+                sprite.originY = 0;
+            }
         }
     });
 
@@ -286,19 +318,32 @@ function create ()
     //collision logic
     this.matter.world.on('collisionstart', function (event, bodyA, bodyB) {
 
-        //teleporter
-        if((bodyA.gameObject === jaxi || bodyB.gameObject === jaxi) &&
-        ((bodyA.gameObject != null && bodyA.gameObject.isTeleporter) || 
+        if((bodyA.gameObject === jaxi || bodyB.gameObject === jaxi))
+        {
+            //teleporter
+            if(((bodyA.gameObject != null && bodyA.gameObject.isTeleporter) || 
             (bodyB != null && bodyB.isTeleporter)))
-        {
-            finishLevel();
-        }
+            {
+                finishLevel();
+            }
 
-        if((bodyA.gameObject === jaxi || bodyB.gameObject === jaxi) &&
-        ((bodyA.gameObject != null && bodyA.gameObject.isSpikes) || 
+            //spikes
+            if(((bodyA.gameObject != null && bodyA.gameObject.isSpikes) || 
             (bodyB != null && bodyB.isSpikes)))
-        {
-            restartLevel();
+            {
+                restartLevel();
+            }
+
+            //tar
+            if(((bodyA.gameObject != null && bodyA.gameObject.isTar) || 
+            (bodyB != null && bodyB.isTar)))
+            {
+                console.log(jaxi);
+                jaxi.tar = (bodyA.gameObject != null && bodyA.gameObject.isTar) ? bodyA.gameObject : bodyB;
+                jaxi.stickCount = Math.floor(Math.random()*5) + 1;
+                (jaxi.body.velocity.x > 0) ? jaxi.setVelocity(23,0) : jaxi.setVelocity(-23,0);
+                
+            }
         }
 
     });
@@ -324,6 +369,12 @@ function create ()
             //}
         }, this);
 
+
+        vue.chopperbot = chopperbot;
+        vue.chopperbot_flyAway = chopperbot_flyAway;
+        vue.jaxi = jaxi;
+        var animationGetter = require('../assets/levels/levelAnimation' + levelNum + '.js').AnimationGetter;
+        vue.animationArray = animationGetter.get(vue);
         vue.runLevelAnimation();
 
 }
@@ -354,13 +405,29 @@ function update ()
             interpreter.setProperty(scope, 'run',
                  interpreter.createNativeFunction(run));
 
-            interpreter.setProperty(scope, 'touches',
-                 interpreter.createNativeFunction(touches));
+            interpreter.setProperty(scope, 'climb',
+                 interpreter.createNativeFunction(climb));
+
+            interpreter.setProperty(scope, 'isTouching',
+                 interpreter.createNativeFunction(isTouching));
+
+                 interpreter.setProperty(scope, 'lert',
+                 interpreter.createNativeFunction(lert));
         };
 
         jaxiInterpreter = new Interpreter(execCode, initFunc);
         nextStep();
         
+    },
+    setupToolTip(sprite, toolTipText)
+    {
+        sprite.setInteractive();
+        sprite.on('pointerover', function () {
+            sprite.toolTip = vue.showToolTip([{character:sprite, text:toolTipText}]);
+        });
+        sprite.on('pointerout', function () {
+            sprite.toolTip.destroy();
+        });
     },
     runLevelAnimation: function()
     {   
@@ -425,6 +492,13 @@ function dance()
 
 function jump(speed)
 {
+
+    if(jaxi.stickCount != null && jaxi.stickCount > 0)
+    {
+        animateBeingStuck();
+        return;
+    }
+
     var isNeg = speed < 0;
     if(speed > 5) speed = 5;
     if(speed < -5) speed = -5;
@@ -446,6 +520,12 @@ function jump(speed)
 
 function run(speed)
 {
+    if(jaxi.stickCount != null && jaxi.stickCount > 0)
+    {
+        animateBeingStuck();
+        return;
+    }
+
     if(speed > 5) speed = 5;
     if(speed < -5) speed = -5;
 
@@ -462,9 +542,108 @@ function run(speed)
 
     jaxi.setFlipX(speed <= 0);
 }
-function touches(item)
+function animateBeingStuck()
 {
-    alert('touching?');
+    
+    jaxi.setVelocity(30,0);
+    jaxi.thrustBack(.001)
+    jaxi.anims.play('run');
+    codePause = true;
+    phaser.tweens.add({
+        targets: jaxi,
+        x: jaxi.tar.x,
+        ease: 'Bounce.easeInOut',
+        duration: 800,
+        //onUpdate: function() { jaxi.setPosition(pos.x, jaxi.y); },
+        onComplete: function() {
+            jaxi.stickCount--;
+            nextStep();
+
+            if(jaxi.stickCount == 0)
+            {
+                phaser.tweens.add({
+                    targets: jaxi.tar,
+                    scaleY: 0,
+                    y: (jaxi.tar.height/2) + jaxi.tar.y,
+                    ease: 'Quad.easeOut',
+                    duration: 500,
+                    onComplete: function() {
+                        jaxi.tar.destroy();
+                        vue.interactivesArray = vue.interactivesArray.filter( el => el !== jaxi.tar ); 
+                    }
+                });
+            }
+        }
+    });
+}
+function climb()
+{
+    var jaxiRect = jaxi.getBounds();
+    vue.interactivesArray.forEach(obj => {
+        var rect = obj.getBounds();
+        rect.height = obj.height;
+
+
+        //debugging.
+        // var graphics = phaser.add.graphics({ fillStyle: { color: 0x0000ff } });
+        // graphics.fillRectShape(rect);
+
+        var iRect = Phaser.Geom.Intersects.GetRectangleIntersection(jaxiRect, rect);
+        if(iRect.x > 0 && 
+           iRect.y > 0 &&
+           obj.type == 'g_metalladder')
+        {
+            jaxi.stickCount = 0;
+            var isUp = rect.y < jaxiRect.y;
+            codePause = true;
+            jaxi.anims.play('climb');
+            jaxi.x = obj.x - obj.width/2;
+            jaxi.setFlipX(false);
+            phaser.tweens.add({
+                targets: jaxi,
+                y: jaxi.y + (obj.height * (isUp ? -1 : 1)),
+                ease: 'None',
+                duration: obj.height * 3,
+                //onUpdate: function() { jaxi.setPosition(pos.x, jaxi.y); },
+                onComplete: function() {
+                    codePause = false;
+                    jaxi.thrustBack(.001);
+                    jaxi.anims.play('idol');
+                }
+            });
+            return;
+        }
+    });
+}
+function isTouching(item)
+{
+    let isTouching = "false";
+    var jaxiRect = jaxi.getBounds();
+    vue.interactivesArray.forEach(obj => {
+        var rect = obj.getBounds();
+        rect.height = obj.height;
+
+
+        //debugging.
+        // var graphics = phaser.add.graphics({ fillStyle: { color: 0x0000ff } });
+        // graphics.fillRectShape(rect);
+
+        var iRect = Phaser.Geom.Intersects.GetRectangleIntersection(jaxiRect, rect);
+        if(iRect.x > 0 && 
+           iRect.y > 0 &&
+           obj.label == item)
+        {
+            isTouching = "true";
+        }
+
+    });
+
+    return isTouching;
+    
+}
+function lert(val)
+{
+    alert(val);
 }
 /////////////////////////
 

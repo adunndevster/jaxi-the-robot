@@ -78,24 +78,24 @@ import Levels from './LevelSelect/Levels'
 export default {
   name: 'level-select',
   components: { Levels },
-  data(){
+  data () {
     return {
       zone: 1
     }
   },
   methods: {
     handleScroll () {
-      this.zone = Math.ceil((window.scrollY - 100) / 732) + 1;
+      this.zone = Math.ceil((window.scrollY - 100) / 732) + 1
     },
-    setFade() {
-      this.$emit("fadeFunc", true);
+    setFade () {
+      this.$emit('fadeFunc', true)
     }
   },
   created () {
-    window.addEventListener('scroll', this.handleScroll);
+    window.addEventListener('scroll', this.handleScroll)
   },
   destroyed () {
-    window.removeEventListener('scroll', this.handleScroll);
+    window.removeEventListener('scroll', this.handleScroll)
   }
 }
 </script>

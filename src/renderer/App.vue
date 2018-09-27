@@ -13,35 +13,31 @@
 </template>
 
 <script>
-
-
   export default {
     name: 'jaxi-electron-vue',
-    data() {
+    data () {
       return {
         isShowing: true
       }
     },
-     methods: {
-      fadeOut() {
-        var vue = this;
-        window.setTimeout(function (){
-          vue.isShowing = false;
-        }, 1000);
+    methods: {
+      fadeOut () {
+        var vue = this
+        window.setTimeout(function () {
+          vue.isShowing = false
+        }, 1000)
       },
-      fadeIn() {
-        this.isShowing = true;
+      fadeIn () {
+        this.isShowing = true
       },
-      setFade(fadeState) {
-        this.isShowing = fadeState;
+      setFade (fadeState) {
+        this.isShowing = fadeState
       }
     },
-    mounted() {
-      this.fadeOut();
-    }
+    mounted () {
+      this.fadeOut()
   }
-
-
+  }
 </script>
 
 <style>

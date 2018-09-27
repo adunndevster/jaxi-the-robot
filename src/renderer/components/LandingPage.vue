@@ -15,17 +15,17 @@
   export default {
     name: 'landing-page',
     components: { SystemInformation },
-    mounted(){
-      window.addEventListener("keypress", function(){
-       router.push('level-select');
-      }, false);
-    },
+    mounted () {
+      window.addEventListener('keypress', function () {
+        router.push('level-select')
+      }, false)
+  },
     methods: {
       open (link) {
-        this.$electron.shell.openExternal(link);
+        this.$electron.shell.openExternal(link)
       }
     }
-    
+  
   }
 </script>
 

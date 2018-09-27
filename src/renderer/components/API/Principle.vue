@@ -12,15 +12,15 @@
 <script>
 import router from '../../router'
 
-  export default {
-    name: 'principle',
-    props: ['property', 'paramsArray', 'description']
-    // data () {
-    //   return {
-    //     startLevel:0
-    //   }
-    // }
-  }
+export default {
+  name: 'principle',
+  props: ['property', 'paramsArray', 'description']
+  // data () {
+  //   return {
+  //     startLevel:0
+  //   }
+  // }
+}
 </script>
 
 <style>
