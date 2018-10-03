@@ -98,13 +98,13 @@ export default {
     editor.getSession().setValue(this.code);
     functionsEditor.getSession().setValue(this.functions);
 
-    var langTools = require('brace/ext/language_tools') //language extension prerequsite...
+    // var langTools = require('brace/ext/language_tools') //language extension prerequsite...
 
-    editor.setOptions({
-        enableBasicAutocompletion: true,
-        enableSnippets: true,
-        enableLiveAutocompletion: true
-    });
+    // editor.setOptions({
+    //     enableBasicAutocompletion: true,
+    //     enableSnippets: true,
+    //     enableLiveAutocompletion: true
+    // });
   },
   methods: {
     setCodeMode: function(mode)
@@ -180,6 +180,8 @@ function preload ()
     this.load.image("g_chopperbot", require("../assets/toybox/ChopperbotSprites.png"));
     this.load.atlas("g_tar", require("../assets/toybox/TarSprites.png"), require("../assets/toybox/TarSprites.json"));
     this.load.image("g_tar", require("../assets/toybox/TarSprites.png"));
+    this.load.atlas("g_flower", require("../assets/toybox/FlowerSprites.png"), require("../assets/toybox/FlowerSprites.json"));
+    this.load.image("g_flower", require("../assets/toybox/FlowerSprites.png"));
 
     //scenery
     var sceneryFiles = ['g_sc_bluebotbuilding.png', 'g_sc_junk_silhouette1.png', 'g_sc_rock1.png', 'g_sc_rocks.png', 'g_sc_trashclump1.png',
@@ -214,6 +216,9 @@ function create ()
 
     //tar
     this.anims.create({ key: 'all_tar', frames: this.anims.generateFrameNames('g_tar'), repeat: -1 });
+
+    //flower
+    this.anims.create({ key: 'all_flower', frames: this.anims.generateFrameNames('g_flower'), repeat: 0 });
 
 
     levelData.level.elements.forEach(element => {
@@ -262,6 +267,24 @@ function create ()
             sprite.isTar = true;
             sprite.label = 'tar';
             vue.setupToolTip(sprite, sprite.label);
+            vue.interactivesArray.push(sprite);
+        }
+        else if(element.type.indexOf('g_flower') != -1)
+        {
+            var sprite = this.matter.add.sprite(element.x, element.y, element.type).setStatic(true);
+            sprite.setSensor(true);
+            sprite.isFlower = true;
+            sprite.label = 'flower';
+            var rando = Math.floor(Math.random()*9) + 1;
+            sprite.color = 'pink'
+            if(rando == 2 || rando == 5 || rando == 8) sprite.color = 'yellow';
+            if(rando % 3 == 0) sprite.color = 'blue';
+            sprite.petals = 6;
+            if(rando > 3) sprite.petals = 8;
+            if(rando > 6) sprite.petals = 12;
+                sprite.anims.play('all_flower', false, rando-1);
+                sprite.anims.pause();
+            vue.setupToolTip(sprite, sprite.label + '<br>color: ' + sprite.color + '<br>petals: ' + sprite.petals );
             vue.interactivesArray.push(sprite);
         }
         else if(element.type.indexOf('g_chopperbot') != -1)
