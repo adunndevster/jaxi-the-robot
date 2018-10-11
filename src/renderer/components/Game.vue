@@ -71,6 +71,7 @@ var levelNum = 1;
 var vue;
 var phaser;
 var game;
+var mainScope;
 
 export default {
   name: 'level-select',
@@ -87,7 +88,9 @@ export default {
             animationStep: 0,
             animationArray: [],
             runCodeDisabled: true,
-            interactivesArray: []
+            interactivesArray: [],
+            gatorsArray: [],
+            updateEvent: null
         }
     },
   mounted() {
@@ -182,6 +185,8 @@ function preload ()
     this.load.image("g_tar", require("../assets/toybox/TarSprites.png"));
     this.load.atlas("g_flower", require("../assets/toybox/FlowerSprites.png"), require("../assets/toybox/FlowerSprites.json"));
     this.load.image("g_flower", require("../assets/toybox/FlowerSprites.png"));
+    this.load.atlas("g_gator", require("../assets/toybox/GatorSprites.png"), require("../assets/toybox/GatorSprites.json"));
+    this.load.image("g_gator", require("../assets/toybox/GatorSprites.png"));
 
     //scenery
     var sceneryFiles = ['g_sc_bluebotbuilding.png', 'g_sc_junk_silhouette1.png', 'g_sc_rock1.png', 'g_sc_rocks.png', 'g_sc_trashclump1.png',
@@ -219,6 +224,11 @@ function create ()
 
     //flower
     this.anims.create({ key: 'all_flower', frames: this.anims.generateFrameNames('g_flower'), repeat: 0 });
+
+    //gator
+    this.anims.create({ key: 'gator_idol', frames: this.anims.generateFrameNames('g_gator', {prefix:'Gator_SpriteSheet', start:0, end:0, zeroPad:4}), repeat: 0 });
+    this.anims.create({ key: 'gator_laugh', frames: this.anims.generateFrameNames('g_gator', {prefix:'Gator_SpriteSheet', start:2, end:20, zeroPad:4}), repeat: 0 });
+    this.anims.create({ key: 'gator_turn', frames: this.anims.generateFrameNames('g_gator', {prefix:'Gator_SpriteSheet', start:32, end:44, zeroPad:4}), repeat: 0 });
 
 
     levelData.level.elements.forEach(element => {
@@ -276,16 +286,28 @@ function create ()
             sprite.isFlower = true;
             sprite.label = 'flower';
             var rando = Math.floor(Math.random()*9) + 1;
-            sprite.color = 'pink'
-            if(rando == 2 || rando == 5 || rando == 8) sprite.color = 'yellow';
-            if(rando % 3 == 0) sprite.color = 'blue';
-            sprite.petals = 6;
-            if(rando > 3) sprite.petals = 8;
-            if(rando > 6) sprite.petals = 12;
+            sprite.vals = new Object();
+            sprite.vals.color = 'pink'
+            if(rando == 2 || rando == 5 || rando == 8) sprite.vals.color = 'yellow';
+            if(rando % 3 == 0) sprite.vals.color = 'blue';
+            sprite.vals.petals = 6;
+            if(rando > 3) sprite.vals.petals = 8;
+            if(rando > 6) sprite.vals.petals = 12;
                 sprite.anims.play('all_flower', false, rando-1);
                 sprite.anims.pause();
-            vue.setupToolTip(sprite, sprite.label + '<br>color: ' + sprite.color + '<br>petals: ' + sprite.petals );
+            vue.setupToolTip(sprite, sprite.label + '<br>color: ' + sprite.vals.color + '<br>petals: ' + sprite.vals.petals );
             vue.interactivesArray.push(sprite);
+        }
+        else if(element.type.indexOf('g_gator') != -1)
+        {
+            var sprite = this.matter.add.sprite(element.x, element.y, element.type).setStatic(true);
+            sprite.setSensor(true);
+            sprite.isGator = true;
+            sprite.label = 'gatorbot';
+            sprite.anims.play('gator_idol');
+            vue.setupToolTip(sprite, sprite.label);
+            vue.interactivesArray.push(sprite);
+            vue.gatorsArray.push(sprite);
         }
         else if(element.type.indexOf('g_chopperbot') != -1)
         {
@@ -361,11 +383,19 @@ function create ()
             if(((bodyA.gameObject != null && bodyA.gameObject.isTar) || 
             (bodyB != null && bodyB.isTar)))
             {
-                console.log(jaxi);
                 jaxi.tar = (bodyA.gameObject != null && bodyA.gameObject.isTar) ? bodyA.gameObject : bodyB;
                 jaxi.stickCount = Math.floor(Math.random()*5) + 1;
                 (jaxi.body.velocity.x > 0) ? jaxi.setVelocity(23,0) : jaxi.setVelocity(-23,0);
                 
+            }
+
+            //gators
+            if(((bodyA.gameObject != null && bodyA.gameObject.isGator) || 
+            (bodyB != null && bodyB.isGator)))
+            {
+                var gator = (bodyA.gameObject.isGator) ? bodyA.gameObject : bodyB;
+                gator.anims.delayedPlay(1100, 'gator_laugh');
+                restartLevel();
             }
         }
 
@@ -400,10 +430,22 @@ function create ()
         vue.animationArray = animationGetter.get(vue);
         vue.runLevelAnimation();
 
+        vue.updateEvent = this.time.addEvent({ delay: 500, callback: onUpdateEvent, callbackScope: this, loop: true });
+
 }
 
 function update ()
 {
+
+}
+
+function onUpdateEvent()
+{
+    //rotate gators to face Jaxi
+    vue.gatorsArray.forEach(gator => {
+        var flip = gator.x > jaxi.x;
+        gator_flip(gator, flip);
+    })
 }
 
 
@@ -415,12 +457,18 @@ function update ()
         var functionsEditor = ace.edit("functionsEditor");
         this.code = editor.getSession().getValue();
         this.functions = functionsEditor.getSession().getValue();
-        var execCode = this.functions + this.code;
+        var wrapperCode = 'Array.prototype.copyWithin||(Array.prototype.copyWithin=function(r,t){if(null==this)throw new TypeError("this is null or not defined");var e=Object(this),n=e.length>>>0,o=r>>0,i=o<0?Math.max(n+o,0):Math.min(o,n),a=t>>0,f=a<0?Math.max(n+a,0):Math.min(a,n),l=arguments[2],y=void 0===l?n:l>>0,p=y<0?Math.max(n+y,0):Math.min(y,n),u=Math.min(p-f,n-i),h=1;for(f<i&&i<f+u&&(h=-1,f+=u-1,i+=u-1);0<u;)f in e?e[i]=e[f]:delete e[i],f+=h,i+=h,u--;return e}),Array.prototype.every||(Array.prototype.every=function(r,t){"use strict";var e,n;if(null==this)throw new TypeError("this is null or not defined");var o=Object(this),i=o.length>>>0;if("function"!=typeof r)throw new TypeError;for(1<arguments.length&&(e=t),n=0;n<i;){var a;if(n in o)if(a=o[n],!r.call(e,a,n,o))return!1;n++}return!0}),Array.prototype.fill||Object.defineProperty(Array.prototype,"fill",{value:function(r){if(null==this)throw new TypeError("this is null or not defined");for(var t=Object(this),e=t.length>>>0,n=arguments[1]>>0,o=n<0?Math.max(e+n,0):Math.min(n,e),i=arguments[2],a=void 0===i?e:i>>0,f=a<0?Math.max(e+a,0):Math.min(a,e);o<f;)t[o]=r,o++;return t}}),Array.prototype.find||Object.defineProperty(Array.prototype,"find",{value:function(r){if(null==this)throw new TypeError(\'"this" is null or not defined\');var t=Object(this),e=t.length>>>0;if("function"!=typeof r)throw new TypeError("predicate must be a function");for(var n=arguments[1],o=0;o<e;){var i=t[o];if(r.call(n,i,o,t))return i;o++}},configurable:!0,writable:!0}),Array.prototype.findIndex||Object.defineProperty(Array.prototype,"findIndex",{value:function(r){if(null==this)throw new TypeError("\'this\' is null or not defined");var t=Object(this),e=t.length>>>0;if("function"!=typeof r)throw new TypeError("predicate must be a function");for(var n=arguments[1],o=0;o<e;){var i=t[o];if(r.call(n,i,o,t))return o;o++}return-1},configurable:!0,writable:!0}),Array.prototype.forEach||(Array.prototype.forEach=function(r){var t,e;if(null==this)throw new TypeError("this is null or not defined");var n=Object(this),o=n.length>>>0;if("function"!=typeof r)throw new TypeError(r+" is not a function");for(1<arguments.length&&(t=arguments[1]),e=0;e<o;){var i;e in n&&(i=n[e],r.call(t,i,e,n)),e++}}),Array.prototype.includes||Object.defineProperty(Array.prototype,"includes",{value:function(r,t){if(null==this)throw new TypeError("\'this\' is null or not defined");var e=Object(this),n=e.length>>>0;if(0===n)return!1;var o,i,a=0|t,f=Math.max(0<=a?a:n-Math.abs(a),0);for(;f<n;){if((o=e[f])===(i=r)||"number"==typeof o&&"number"==typeof i&&isNaN(o)&&isNaN(i))return!0;f++}return!1}}),Array.prototype.map||(Array.prototype.map=function(r){var t,e,n;if(null==this)throw new TypeError("this is null or not defined");var o=Object(this),i=o.length>>>0;if("function"!=typeof r)throw new TypeError(r+" is not a function");for(1<arguments.length&&(t=arguments[1]),e=new Array(i),n=0;n<i;){var a,f;n in o&&(a=o[n],f=r.call(t,a,n,o),e[n]=f),n++}return e}),Array.prototype.reduce||Object.defineProperty(Array.prototype,"reduce",{value:function(r){if(null===this)throw new TypeError("Array.prototype.reduce called on null or undefined");if("function"!=typeof r)throw new TypeError(r+" is not a function");var t,e=Object(this),n=e.length>>>0,o=0;if(2<=arguments.length)t=arguments[1];else{for(;o<n&&!(o in e);)o++;if(n<=o)throw new TypeError("Reduce of empty array with no initial value");t=e[o++]}for(;o<n;)o in e&&(t=r(t,e[o],o,e)),o++;return t}}),"function"!=typeof Array.prototype.reduceRight&&(Array.prototype.reduceRight=function(r){"use strict";if(null==this)throw new TypeError("Array.prototype.reduce called on null or undefined");if("function"!=typeof r)throw new TypeError(r+" is not a function");var t,e=Object(this),n=(e.length>>>0)-1;if(2<=arguments.length)t=arguments[1];else{for(;0<=n&&!(n in e);)n--;if(n<0)throw new TypeError("Reduce of empty array with no initial value");t=e[n--]}for(;0<=n;n--)n in e&&(t=r(t,e[n],n,e));return t});';
+        wrapperCode += "function pickUp(){return JSON.parse(pickUpWrapper())}function isTouching(item){return JSON.parse(isTouchingWrapper(item))}";
+        var execCode = this.code + wrapperCode + this.functions;
 
         var initFunc = function(interpreter, scope) {
 
+            mainScope = scope;
              interpreter.setProperty(scope, 'dance',
                  interpreter.createNativeFunction(dance));
+
+            interpreter.setProperty(scope, 'pickUpWrapper',
+                 interpreter.createNativeFunction(pickUpWrapper));
 
             interpreter.setProperty(scope, 'jump',
                  interpreter.createNativeFunction(jump));
@@ -431,15 +479,21 @@ function update ()
             interpreter.setProperty(scope, 'climb',
                  interpreter.createNativeFunction(climb));
 
-            interpreter.setProperty(scope, 'isTouching',
-                 interpreter.createNativeFunction(isTouching));
+            interpreter.setProperty(scope, 'isTouchingWrapper',
+                 interpreter.createNativeFunction(isTouchingWrapper));
 
-                 interpreter.setProperty(scope, 'lert',
+            interpreter.setProperty(scope, 'say',
+                 interpreter.createNativeFunction(say));
+
+            interpreter.setProperty(scope, 'lert',
                  interpreter.createNativeFunction(lert));
+
         };
 
         jaxiInterpreter = new Interpreter(execCode, initFunc);
+        
         nextStep();
+        console.log(jaxiInterpreter);
         
     },
     setupToolTip(sprite, toolTipText)
@@ -476,9 +530,18 @@ function update ()
         var bubble = new (Vue.extend(SpeechBubble))(
             {
                 created() {
-                    const EVENTS = [
-                        {name: 'nextAnim', callback: () => vue.nextAnimationStep()}
-                    ]
+                    var EVENTS
+                    if(vue.animationStep < vue.animationArray.length)
+                    {
+                        EVENTS = [
+                            {name: 'nextAnim', callback: () => vue.nextAnimationStep()}
+                        ]
+                    } else {
+                        EVENTS = [
+                            {name: 'nextAnim', callback: () => nextStep()}
+                        ]
+                    }
+                    
 
                     for (let e of EVENTS) {
                         this.$on(e.name, e.callback); // Add event listeners
@@ -511,6 +574,52 @@ function dance()
     codePause = true;
     jaxi.anims.play('dance');
     window.setTimeout(idolJaxi, 1000);
+}
+
+function pickUpWrapper()
+{
+    var pickUpReturnVal;
+    codePause = true;
+    jaxi.anims.play('pickup');
+    window.setTimeout(idolJaxi, 600);
+
+    var jaxiRect = jaxi.getBounds();
+    var flowersArray = vue.interactivesArray.filter(obj => {
+        return obj.isFlower;
+    });
+    flowersArray.forEach(flower => {
+        var rect = flower.getBounds();
+        rect.height = flower.height;
+
+        //  var graphics = phaser.add.graphics({ fillStyle: { color: 0x0000ff } });
+        //  graphics.fillRectShape(rect);
+
+        var iRect = Phaser.Geom.Intersects.GetRectangleIntersection(jaxiRect, rect);
+        if(iRect.x > 0 && 
+           iRect.y > 0)
+        {
+            phaser.tweens.add({
+                targets: flower,
+                scaleY: 0,
+                scaleX: 0,
+                x: jaxi.x + (jaxi.flipX ? -60 : 60),
+                y: jaxi.y,
+                ease: 'Quad.easeOut',
+                delay:300,
+                duration: 200,
+                onComplete: function() {
+                    flower.x = -9999;
+                }
+            });
+            pickUpReturnVal = flower.vals;
+            
+        }
+    });
+
+
+    // jaxiInterpreter.setProperty(mainScope, 'newVal',
+    //             pickUpReturnVal);
+    return JSON.stringify(pickUpReturnVal);
 }
 
 function jump(speed)
@@ -638,7 +747,7 @@ function climb()
         }
     });
 }
-function isTouching(item)
+function isTouchingWrapper(item)
 {
     let isTouching = "false";
     var jaxiRect = jaxi.getBounds();
@@ -648,15 +757,16 @@ function isTouching(item)
 
 
         //debugging.
-        // var graphics = phaser.add.graphics({ fillStyle: { color: 0x0000ff } });
-        // graphics.fillRectShape(rect);
+        //  var graphics = phaser.add.graphics({ fillStyle: { color: 0x0000ff } });
+        //  graphics.fillRectShape(rect);
+        //  graphics.fillRectShape(jaxiRect);
 
         var iRect = Phaser.Geom.Intersects.GetRectangleIntersection(jaxiRect, rect);
         if(iRect.x > 0 && 
            iRect.y > 0 &&
            obj.label == item)
         {
-            isTouching = "true";
+            isTouching = JSON.stringify(true);
         }
 
     });
@@ -664,11 +774,18 @@ function isTouching(item)
     return isTouching;
     
 }
+function say(text)
+{
+    codePause = true;
+    vue.say([{character:jaxi, text:text}])
+}
 function lert(val)
 {
     alert(val);
 }
 /////////////////////////
+
+
 
 //chopperbot//////////////
 function chopperbot_flyAway()
@@ -690,6 +807,20 @@ function chopperbot_flyAway()
 }
 /////////////////////////   
 
+
+//gator//////////////
+function gator_flip(gator, flip)
+{
+    if(gator.flipX != flip)
+    {
+        gator.anims.play('gator_turn');
+        window.setTimeout(function(){
+            gator.anims.play('gator_idol');
+            gator.setFlipX(flip);
+        }, 400);
+    }
+}
+/////////////////////
 
 //experiments in better running
 // function run(speed)
@@ -792,8 +923,7 @@ function nextStep() {
         try{
             var hasMoreCode = jaxiInterpreter.step();
             if (jaxiInterpreter.stateStack.length) {
-                var node =
-                    jaxiInterpreter.stateStack[jaxiInterpreter.stateStack.length - 1].node;
+                var node = jaxiInterpreter.stateStack[jaxiInterpreter.stateStack.length - 1].node;
                 var start = node.start;
                 var end = node.end;
             } else {

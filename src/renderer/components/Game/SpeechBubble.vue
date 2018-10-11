@@ -34,8 +34,8 @@
         var bubbleText = document.getElementById('bubbleText')
 
         if (this.currentPos == this.dialogueArray.length) {
-          this.$emit('nextAnim')
           bubble.parentElement.removeChild(bubble)
+          this.$emit('nextAnim')
           return
         }
 

@@ -1,0 +1,501 @@
+﻿
+{
+	"textures": [
+		{
+			"image": "diamond.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 292,
+				"h": 307
+			},
+			"scale": 1,
+			"frames": [
+
+				{
+					"filename": "Gator_SpriteSheet0000",
+					"frame": {"x":5,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0001",
+					"frame": {"x":5,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0002",
+					"frame": {"x":5,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0003",
+					"frame": {"x":302,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0004",
+					"frame": {"x":302,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0005",
+					"frame": {"x":599,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0006",
+					"frame": {"x":599,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0007",
+					"frame": {"x":302,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0008",
+					"frame": {"x":302,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0009",
+					"frame": {"x":5,"y":317,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0010",
+					"frame": {"x":5,"y":317,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0011",
+					"frame": {"x":302,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0012",
+					"frame": {"x":302,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0013",
+					"frame": {"x":302,"y":317,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0014",
+					"frame": {"x":302,"y":317,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0015",
+					"frame": {"x":302,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0016",
+					"frame": {"x":302,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0017",
+					"frame": {"x":5,"y":317,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0018",
+					"frame": {"x":5,"y":317,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0019",
+					"frame": {"x":5,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0020",
+					"frame": {"x":5,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0021",
+					"frame": {"x":5,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0022",
+					"frame": {"x":5,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0023",
+					"frame": {"x":5,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0024",
+					"frame": {"x":5,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0025",
+					"frame": {"x":5,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0026",
+					"frame": {"x":5,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0027",
+					"frame": {"x":5,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0028",
+					"frame": {"x":5,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0029",
+					"frame": {"x":5,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0030",
+					"frame": {"x":5,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0031",
+					"frame": {"x":5,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0032",
+					"frame": {"x":5,"y":5,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0033",
+					"frame": {"x":599,"y":317,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0034",
+					"frame": {"x":599,"y":317,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0035",
+					"frame": {"x":5,"y":629,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0036",
+					"frame": {"x":5,"y":629,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0037",
+					"frame": {"x":302,"y":629,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0038",
+					"frame": {"x":302,"y":629,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0039",
+					"frame": {"x":302,"y":629,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0040",
+					"frame": {"x":599,"y":629,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0041",
+					"frame": {"x":599,"y":629,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0042",
+					"frame": {"x":599,"y":629,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0043",
+					"frame": {"x":5,"y":941,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0044",
+					"frame": {"x":5,"y":941,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0045",
+					"frame": {"x":5,"y":941,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0046",
+					"frame": {"x":5,"y":941,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0047",
+					"frame": {"x":5,"y":941,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0048",
+					"frame": {"x":5,"y":941,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0049",
+					"frame": {"x":5,"y":941,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0050",
+					"frame": {"x":5,"y":941,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0051",
+					"frame": {"x":5,"y":941,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0052",
+					"frame": {"x":5,"y":941,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0053",
+					"frame": {"x":5,"y":941,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0054",
+					"frame": {"x":5,"y":941,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0055",
+					"frame": {"x":5,"y":941,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0056",
+					"frame": {"x":5,"y":941,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0057",
+					"frame": {"x":5,"y":941,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0058",
+					"frame": {"x":5,"y":941,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}
+				,{
+					"filename": "Gator_SpriteSheet0059",
+					"frame": {"x":5,"y":941,"w":292,"h":307},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":292,"h":307},
+					"sourceSize": {"w":292,"h":307}
+				}]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:e736cd8cf1cc6c21cdecd89617e57b40:3f67279da100055ce060055b288ffd38:705052c6a040f848fc5007c977cd7b91$"
+	}
+}
