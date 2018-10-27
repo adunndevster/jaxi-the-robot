@@ -90,7 +90,8 @@ export default {
             runCodeDisabled: true,
             interactivesArray: [],
             gatorsArray: [],
-            updateEvent: null
+            updateEvent: null,
+            totalFlowers: 0
         }
     },
   mounted() {
@@ -127,6 +128,39 @@ export default {
         
         this.runGame();
 
+    },
+    makeFLower: function(element, dirt)
+    {
+        var sprite = phaser.matter.add.sprite(element.x, element.y, "g_flower").setStatic(true);
+        sprite.y += sprite.height/2;
+        sprite.scaleX = sprite.scaleY = 0;
+        phaser.tweens.add({
+                targets: sprite,
+                scaleY: 1,
+                scaleX: 1,
+                y: (dirt) ? sprite.y - sprite.height : sprite.y - sprite.height/2,
+                ease: 'Quad.easeOut',
+                //delay:300,
+                duration: 500
+            });
+        sprite.setSensor(true);
+        sprite.isFlower = true;
+        if(dirt) sprite.dirt = dirt;
+        sprite.label = 'flower';
+        var rando = Math.floor(Math.random()*9) + 1;
+        sprite.vals = new Object();
+        sprite.vals.id = "flower_" + vue.totalFlowers;
+        sprite.vals.color = 'pink'
+        if(rando == 2 || rando == 5 || rando == 8) sprite.vals.color = 'yellow';
+        if(rando % 3 == 0) sprite.vals.color = 'blue';
+        sprite.vals.petals = 6;
+        if(rando > 3) sprite.vals.petals = 8;
+        if(rando > 6) sprite.vals.petals = 12;
+            sprite.anims.play('all_flower', false, rando-1);
+            sprite.anims.pause();
+        vue.setupToolTip(sprite, 'id: ' + sprite.vals.id + '<br>color: ' + sprite.vals.color + '<br>petals: ' + sprite.vals.petals );
+        vue.totalFlowers++;
+        vue.interactivesArray.push(sprite);
     },
     runGame: function()
     {
@@ -287,26 +321,19 @@ function create ()
             var sprite = this.matter.add.sprite(element.x, element.y, element.type).setStatic(true);
             sprite.setSensor(true);
             sprite.isDirt = true;
+            sprite.label = "dirt";
+            sprite.elementObj = element;
+            sprite.growFlower = function(dirt){
+                window.setTimeout(function(){
+                                    vue.makeFLower(dirt.elementObj, dirt)
+                                  }, 1000);
+            }
+            vue.makeFLower(element, sprite);
+            vue.setupToolTip(sprite, sprite.label);
         }
         else if(element.type.indexOf('g_flower') != -1)
         {
-            var sprite = this.matter.add.sprite(element.x, element.y, element.type).setStatic(true);
-            sprite.setSensor(true);
-            sprite.isFlower = true;
-            sprite.label = 'flower';
-            var rando = Math.floor(Math.random()*9) + 1;
-            sprite.vals = new Object();
-            sprite.vals.id = "flower_" + vue.interactivesArray.length;
-            sprite.vals.color = 'pink'
-            if(rando == 2 || rando == 5 || rando == 8) sprite.vals.color = 'yellow';
-            if(rando % 3 == 0) sprite.vals.color = 'blue';
-            sprite.vals.petals = 6;
-            if(rando > 3) sprite.vals.petals = 8;
-            if(rando > 6) sprite.vals.petals = 12;
-                sprite.anims.play('all_flower', false, rando-1);
-                sprite.anims.pause();
-            vue.setupToolTip(sprite, 'id: ' + sprite.vals.id + '<br>color: ' + sprite.vals.color + '<br>petals: ' + sprite.vals.petals );
-            vue.interactivesArray.push(sprite);
+            vue.makeFLower(element);
         }
         else if(element.type.indexOf('g_gator') != -1)
         {
@@ -357,8 +384,6 @@ function create ()
         }
     });
 
-    if(vue.animationArray.length == 0) vue.runCodeDisabled = false;
-
     this.matter.world.on('sleepstart', function (event) {
         
         if(!jaxiInterpreter && (vue.animationStep <= vue.animationArray.length))
@@ -394,10 +419,10 @@ function create ()
 
             //tar
             if(((bodyA.gameObject != null && bodyA.gameObject.isTar) || 
-            (bodyB != null && bodyB.isTar)))
+            (bodyB.gameObject != null && bodyB.gameObject.isTar)))
             {
-                jaxi.tar = (bodyA.gameObject != null && bodyA.gameObject.isTar) ? bodyA.gameObject : bodyB;
-                jaxi.stickCount = Math.floor(Math.random()*5) + 1;
+                jaxi.tar = (bodyA.gameObject != null && bodyA.gameObject.isTar) ? bodyA.gameObject : bodyB.gameObject;
+                jaxi.stickCount = Math.floor(Math.random()*4) + 2;
                 (jaxi.body.velocity.x > 0) ? jaxi.setVelocity(23,0) : jaxi.setVelocity(-23,0);
                 
             }
@@ -445,6 +470,7 @@ function create ()
         vue.jaxi = jaxi;
         var animationGetter = require('../assets/levels/levelAnimation' + levelNum + '.js').AnimationGetter;
         vue.animationArray = animationGetter.get(vue);
+        if(vue.animationArray.length == 0) vue.runCodeDisabled = false;
         vue.runLevelAnimation();
 
         vue.updateEvent = this.time.addEvent({ delay: 500, callback: onUpdateEvent, callbackScope: this, loop: true });
@@ -614,10 +640,15 @@ function pickUpWrapper()
         //  var graphics = phaser.add.graphics({ fillStyle: { color: 0x0000ff } });
         //  graphics.fillRectShape(rect);
 
+        //  graphics = phaser.add.graphics({ fillStyle: { color: 0xff0000 } });
+        //  graphics.fillRectShape(jaxiRect);
+
         var iRect = Phaser.Geom.Intersects.GetRectangleIntersection(jaxiRect, rect);
         if(iRect.x > 0 && 
            iRect.y > 0)
         {
+            jaxi.setFlipX(jaxiRect.x + 20 > iRect.x);
+
             phaser.tweens.add({
                 targets: flower,
                 scaleY: 0,
@@ -631,6 +662,8 @@ function pickUpWrapper()
                     flower.x = -9999;
                 }
             });
+            if(flower.dirt) flower.dirt.growFlower(flower.dirt);
+            
             pickUpReturnVal = flower.vals;
 
             jaxi.bag.push(flower);
@@ -655,6 +688,7 @@ function putDownWrapper(items)
            jaxi.bag[0].vals.id != undefined) 
         {
             putDownItem(jaxi.bag[0].vals.id);
+            doAppeasementChecks();
             return;
         }
     } 
@@ -667,7 +701,7 @@ function putDownWrapper(items)
         {
             putDownItem(item);
         });
-        
+        doAppeasementChecks();
         return;
     }
 
@@ -679,6 +713,14 @@ function putDownWrapper(items)
 function putDownItem(item)
 {
     var thing = jaxi.bag.filter(thing => {if(thing.vals != undefined && thing.vals.id != undefined) return thing.vals.id == item})[0];
+    if(!thing) 
+    {
+        thing = jaxi.bag.filter(thing => {
+                if(thing.vals != undefined && thing.vals.id != undefined) {
+                    return thing.vals.id == item.id
+                } 
+            })[0];
+    }
     thing.x = jaxi.x + (jaxi.flipX ? -60 : 60)
     thing.y = jaxi.y;
     phaser.tweens.add({
@@ -692,6 +734,70 @@ function putDownItem(item)
         duration: 200
     });
     jaxi.bag = jaxi.bag.filter( el => el !== thing );
+}
+function doAppeasementChecks(appeasementValue)
+{
+    var jaxiRect = jaxi.getBounds(); 
+
+    //gators
+    var response = null;
+    var flowersArray = vue.interactivesArray.filter(obj => {
+        return obj.isFlower;
+    });
+    vue.gatorsArray.forEach(gator => {
+        var isGatorHappy = false;
+        if(!gator.isAppeased && gator.appeasement == "flowers")
+        {
+            var gatorRect = new Phaser.Geom.Rectangle(gator.getBounds().x - 200, 
+                                                      gator.getBounds().y, 
+                                                      gator.getBounds().width + 200, 
+                                                      gator.getBounds().height);
+            var flowerCount = 0;
+            var appeasementObj = JSON.parse(gator.appeasementValue);
+            console.log('flower check...');
+            flowersArray.forEach(flower => {
+                
+                var iRect;
+                
+                console.log('flower check...');
+                 if((appeasementObj.petals && flower.vals.petals == appeasementObj.petals) ||
+                    (appeasementObj.color && flower.vals.color == appeasementObj.color))
+                 {
+                     console.log('making iRect...');
+                    iRect = Phaser.Geom.Intersects.GetRectangleIntersection(gatorRect, jaxiRect);
+
+                    //  var graphics = phaser.add.graphics({ fillStyle: { color: 0x0000ff } });
+                    //  graphics.fillRectShape(gatorRect);
+
+                    //  graphics = phaser.add.graphics({ fillStyle: { color: 0xff0000 } });
+                    //  graphics.fillRectShape(jaxiRect);
+                 } 
+                if(iRect && iRect.x > 0 && iRect.y > 0)
+                {
+                    flowerCount++;
+                    console.log(flowerCount);
+                    if(flowerCount == appeasementObj.needed)
+                    {
+                        isGatorHappy = true;
+                    }
+                }
+            });
+            
+        } else if(gator.appeasement == "words" && gator.appeasementValue == appeasementValue)
+        {
+            isGatorHappy = true;
+        }
+        if(isGatorHappy)
+        {
+            gator.anims.play("gator_turn");
+            gator.isAppeased = true;
+            response = {character:gator, text:"I am pleased! You may pass."};
+            return response;
+        }
+    });
+    
+
+    return response;
 }
 
 function jump(speed)
@@ -771,9 +877,10 @@ function animateBeingStuck()
                     y: (jaxi.tar.height/2) + jaxi.tar.y,
                     ease: 'Quad.easeOut',
                     duration: 500,
-                    onComplete: function() {
-                        jaxi.tar.destroy();
-                        vue.interactivesArray = vue.interactivesArray.filter( el => el !== jaxi.tar ); 
+                    onComplete: function(tween, target, sprite) {
+                        console.log(target);
+                        vue.interactivesArray = vue.interactivesArray.filter( el => el !== target ); 
+                        target.x = -10000;
                     }
                 });
             }
@@ -850,20 +957,20 @@ function say(text)
 {
     codePause = true;
     
-    var response = null;
-    var gatorsArray = vue.interactivesArray.filter(obj => {
-        return obj.isGator;
-    });
-    gatorsArray.forEach(gator => {
-        if(gator.appeasement == "words" && gator.appeasementValue == text)
-        {
-            gator.anims.play("gator_turn");
-            gator.isAppeased = true;
-            response = {character:gator, text:"I am pleased! You may pass."};
-        }
-    });
+    var response = doAppeasementChecks(text);
+    // var gatorsArray = vue.interactivesArray.filter(obj => {
+    //     return obj.isGator;
+    // });
+    // gatorsArray.forEach(gator => {
+    //     if(gator.appeasement == "words" && gator.appeasementValue == text)
+    //     {
+    //         gator.anims.play("gator_turn");
+    //         gator.isAppeased = true;
+    //         response = {character:gator, text:"I am pleased! You may pass."};
+    //     }
+    // });
     
-    var sayArray = [{character:jaxi, text:text}];
+     var sayArray = [{character:jaxi, text:text}];
     if(response != null) sayArray.push(response);
     vue.say(sayArray);
 
@@ -900,7 +1007,7 @@ function chopperbot_flyAway()
 //gator//////////////
 function gator_flip(gator, flip)
 {
-    if(gator.flipX != flip)
+    if(!gator.isAppeased && gator.flipX != flip)
     {
         gator.anims.play('gator_turn');
         window.setTimeout(function(){
