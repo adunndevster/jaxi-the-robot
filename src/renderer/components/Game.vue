@@ -132,6 +132,7 @@ export default {
     makeFLower: function(element, dirt)
     {
         var sprite = phaser.matter.add.sprite(element.x, element.y, "g_flower").setStatic(true);
+        if(dirt) dirt.depth = 10000;
         sprite.y += sprite.height/2;
         sprite.scaleX = sprite.scaleY = 0;
         phaser.tweens.add({
@@ -141,7 +142,7 @@ export default {
                 y: (dirt) ? sprite.y - sprite.height : sprite.y - sprite.height/2,
                 ease: 'Quad.easeOut',
                 //delay:300,
-                duration: 500
+                duration: 300
             });
         sprite.setSensor(true);
         sprite.isFlower = true;
@@ -287,6 +288,8 @@ function create ()
             {inertia: Infinity,
             shape: { type: 'fromVerts', verts: shapes.jaxiShape }})
             .setOrigin(.5, .5);
+
+            //jaxi.setTint(0x22eeff);
 
             jaxi.setBounce(.1);
             jaxi.setFriction(.5);
