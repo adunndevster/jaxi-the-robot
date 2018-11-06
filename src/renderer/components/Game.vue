@@ -639,41 +639,44 @@ function pickUpWrapper()
     var flowersArray = vue.interactivesArray.filter(obj => {
         return obj.isFlower;
     });
-    flowersArray.forEach(flower => {
-        var rect = flower.getBounds();
-        rect.height = flower.height;
-
-        //  var graphics = phaser.add.graphics({ fillStyle: { color: 0x0000ff } });
-        //  graphics.fillRectShape(rect);
-
-        //  graphics = phaser.add.graphics({ fillStyle: { color: 0xff0000 } });
-        //  graphics.fillRectShape(jaxiRect);
-
-        var iRect = Phaser.Geom.Intersects.GetRectangleIntersection(jaxiRect, rect);
-        if(iRect.x > 0 && 
-           iRect.y > 0)
+    flowersArray.some(flower => {
+        if(!pickUpReturnVal)
         {
-            jaxi.setFlipX(jaxiRect.x + 20 > iRect.x);
+            var rect = flower.getBounds();
+            rect.height = flower.height;
 
-            phaser.tweens.add({
-                targets: flower,
-                scaleY: 0,
-                scaleX: 0,
-                x: jaxi.x + (jaxi.flipX ? -60 : 60),
-                y: jaxi.y,
-                ease: 'Quad.easeOut',
-                delay:300,
-                duration: 200,
-                onComplete: function() {
-                    flower.x = -9999;
-                }
-            });
-            if(flower.dirt) flower.dirt.growFlower(flower.dirt);
-            
-            pickUpReturnVal = flower.vals;
+            //  var graphics = phaser.add.graphics({ fillStyle: { color: 0x0000ff } });
+            //  graphics.fillRectShape(rect);
 
-            jaxi.bag.push(flower);
-            
+            //  graphics = phaser.add.graphics({ fillStyle: { color: 0xff0000 } });
+            //  graphics.fillRectShape(jaxiRect);
+
+            var iRect = Phaser.Geom.Intersects.GetRectangleIntersection(jaxiRect, rect);
+            if(iRect.x > 0 && 
+            iRect.y > 0)
+            {
+                jaxi.setFlipX(jaxiRect.x + 20 > iRect.x);
+
+                phaser.tweens.add({
+                    targets: flower,
+                    scaleY: 0,
+                    scaleX: 0,
+                    x: jaxi.x + (jaxi.flipX ? -60 : 60),
+                    y: jaxi.y,
+                    ease: 'Quad.easeOut',
+                    delay:300,
+                    duration: 200,
+                    onComplete: function() {
+                        flower.x = -9999;
+                    }
+                });
+                if(flower.dirt) flower.dirt.growFlower(flower.dirt);
+                
+                pickUpReturnVal = flower.vals;
+
+                jaxi.bag.push(flower);
+                
+            }
         }
     });
 
@@ -686,15 +689,20 @@ function putDownWrapper(items)
 {
     codePause = true;
     jaxi.anims.play('pickup');
-    window.setTimeout(idolJaxi, 600);
+    window.setTimeout(function(){
+        idolJaxi();
+        doAppeasementChecks();
+    }, 600);
     if(String(items) == "undefined")
     {
         if(jaxi.bag.length > 0 &&
            jaxi.bag[0].vals != undefined && 
            jaxi.bag[0].vals.id != undefined) 
         {
-            putDownItem(jaxi.bag[0].vals.id);
-            doAppeasementChecks();
+            jaxi.bag.forEach(item =>
+            {
+                putDownItem(item.vals.id);
+            });
             return;
         }
     } 
@@ -707,7 +715,6 @@ function putDownWrapper(items)
         {
             putDownItem(item);
         });
-        doAppeasementChecks();
         return;
     }
 
@@ -743,8 +750,6 @@ function putDownItem(item)
 }
 function doAppeasementChecks(appeasementValue)
 {
-    var jaxiRect = jaxi.getBounds(); 
-
     //gators
     var response = null;
     var flowersArray = vue.interactivesArray.filter(obj => {
@@ -763,31 +768,32 @@ function doAppeasementChecks(appeasementValue)
             console.log('flower check...');
             flowersArray.forEach(flower => {
                 
+                var flowerRect = flower.getBounds();
                 var iRect;
                 
-                console.log('flower check...');
                  if((appeasementObj.petals && flower.vals.petals == appeasementObj.petals) ||
-                    (appeasementObj.color && flower.vals.color == appeasementObj.color))
+                    (appeasementObj.color && flower.vals.color == appeasementObj.color) ||
+                    (appeasementObj.count))
                  {
                      console.log('making iRect...');
-                    iRect = Phaser.Geom.Intersects.GetRectangleIntersection(gatorRect, jaxiRect);
+                    iRect = Phaser.Geom.Intersects.GetRectangleIntersection(gatorRect, flowerRect);
 
                     //  var graphics = phaser.add.graphics({ fillStyle: { color: 0x0000ff } });
                     //  graphics.fillRectShape(gatorRect);
 
                     //  graphics = phaser.add.graphics({ fillStyle: { color: 0xff0000 } });
-                    //  graphics.fillRectShape(jaxiRect);
+                    //  graphics.fillRectShape(flowerRect);
                  } 
                 if(iRect && iRect.x > 0 && iRect.y > 0)
                 {
                     flowerCount++;
-                    console.log(flowerCount);
-                    if(flowerCount == appeasementObj.needed)
-                    {
-                        isGatorHappy = true;
-                    }
                 }
             });
+            console.log(flowerCount);
+            if(flowerCount == appeasementObj.needed)
+            {
+                isGatorHappy = true;
+            }
             
         } else if(gator.appeasement == "words" && gator.appeasementValue == appeasementValue)
         {
