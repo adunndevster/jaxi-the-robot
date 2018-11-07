@@ -761,7 +761,7 @@ function doAppeasementChecks(appeasementValue)
         {
             var gatorRect = new Phaser.Geom.Rectangle(gator.getBounds().x - 200, 
                                                       gator.getBounds().y, 
-                                                      gator.getBounds().width + 200, 
+                                                      gator.getBounds().width + 400, 
                                                       gator.getBounds().height);
             var flowerCount = 0;
             var appeasementObj = JSON.parse(gator.appeasementValue);
