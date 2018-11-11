@@ -505,7 +505,7 @@ function onUpdateEvent()
         this.code = editor.getSession().getValue();
         this.functions = functionsEditor.getSession().getValue();
         var wrapperCode = 'Array.prototype.copyWithin||(Array.prototype.copyWithin=function(r,t){if(null==this)throw new TypeError("this is null or not defined");var e=Object(this),n=e.length>>>0,o=r>>0,i=o<0?Math.max(n+o,0):Math.min(o,n),a=t>>0,f=a<0?Math.max(n+a,0):Math.min(a,n),l=arguments[2],y=void 0===l?n:l>>0,p=y<0?Math.max(n+y,0):Math.min(y,n),u=Math.min(p-f,n-i),h=1;for(f<i&&i<f+u&&(h=-1,f+=u-1,i+=u-1);0<u;)f in e?e[i]=e[f]:delete e[i],f+=h,i+=h,u--;return e}),Array.prototype.every||(Array.prototype.every=function(r,t){"use strict";var e,n;if(null==this)throw new TypeError("this is null or not defined");var o=Object(this),i=o.length>>>0;if("function"!=typeof r)throw new TypeError;for(1<arguments.length&&(e=t),n=0;n<i;){var a;if(n in o)if(a=o[n],!r.call(e,a,n,o))return!1;n++}return!0}),Array.prototype.fill||Object.defineProperty(Array.prototype,"fill",{value:function(r){if(null==this)throw new TypeError("this is null or not defined");for(var t=Object(this),e=t.length>>>0,n=arguments[1]>>0,o=n<0?Math.max(e+n,0):Math.min(n,e),i=arguments[2],a=void 0===i?e:i>>0,f=a<0?Math.max(e+a,0):Math.min(a,e);o<f;)t[o]=r,o++;return t}}),Array.prototype.find||Object.defineProperty(Array.prototype,"find",{value:function(r){if(null==this)throw new TypeError(\'"this" is null or not defined\');var t=Object(this),e=t.length>>>0;if("function"!=typeof r)throw new TypeError("predicate must be a function");for(var n=arguments[1],o=0;o<e;){var i=t[o];if(r.call(n,i,o,t))return i;o++}},configurable:!0,writable:!0}),Array.prototype.findIndex||Object.defineProperty(Array.prototype,"findIndex",{value:function(r){if(null==this)throw new TypeError("\'this\' is null or not defined");var t=Object(this),e=t.length>>>0;if("function"!=typeof r)throw new TypeError("predicate must be a function");for(var n=arguments[1],o=0;o<e;){var i=t[o];if(r.call(n,i,o,t))return o;o++}return-1},configurable:!0,writable:!0}),Array.prototype.forEach||(Array.prototype.forEach=function(r){var t,e;if(null==this)throw new TypeError("this is null or not defined");var n=Object(this),o=n.length>>>0;if("function"!=typeof r)throw new TypeError(r+" is not a function");for(1<arguments.length&&(t=arguments[1]),e=0;e<o;){var i;e in n&&(i=n[e],r.call(t,i,e,n)),e++}}),Array.prototype.includes||Object.defineProperty(Array.prototype,"includes",{value:function(r,t){if(null==this)throw new TypeError("\'this\' is null or not defined");var e=Object(this),n=e.length>>>0;if(0===n)return!1;var o,i,a=0|t,f=Math.max(0<=a?a:n-Math.abs(a),0);for(;f<n;){if((o=e[f])===(i=r)||"number"==typeof o&&"number"==typeof i&&isNaN(o)&&isNaN(i))return!0;f++}return!1}}),Array.prototype.map||(Array.prototype.map=function(r){var t,e,n;if(null==this)throw new TypeError("this is null or not defined");var o=Object(this),i=o.length>>>0;if("function"!=typeof r)throw new TypeError(r+" is not a function");for(1<arguments.length&&(t=arguments[1]),e=new Array(i),n=0;n<i;){var a,f;n in o&&(a=o[n],f=r.call(t,a,n,o),e[n]=f),n++}return e}),Array.prototype.reduce||Object.defineProperty(Array.prototype,"reduce",{value:function(r){if(null===this)throw new TypeError("Array.prototype.reduce called on null or undefined");if("function"!=typeof r)throw new TypeError(r+" is not a function");var t,e=Object(this),n=e.length>>>0,o=0;if(2<=arguments.length)t=arguments[1];else{for(;o<n&&!(o in e);)o++;if(n<=o)throw new TypeError("Reduce of empty array with no initial value");t=e[o++]}for(;o<n;)o in e&&(t=r(t,e[o],o,e)),o++;return t}}),"function"!=typeof Array.prototype.reduceRight&&(Array.prototype.reduceRight=function(r){"use strict";if(null==this)throw new TypeError("Array.prototype.reduce called on null or undefined");if("function"!=typeof r)throw new TypeError(r+" is not a function");var t,e=Object(this),n=(e.length>>>0)-1;if(2<=arguments.length)t=arguments[1];else{for(;0<=n&&!(n in e);)n--;if(n<0)throw new TypeError("Reduce of empty array with no initial value");t=e[n--]}for(;0<=n;n--)n in e&&(t=r(t,e[n],n,e));return t});';
-        wrapperCode += "function pickUp(){return JSON.parse(pickUpWrapper())}function putDown(items){strItems = JSON.stringify(items);putDownWrapper(strItems)}function isTouching(item){return JSON.parse(isTouchingWrapper(item))}function isNear(item){return JSON.parse(isNearWrapper(item))}";
+        wrapperCode += "function inspect(){return JSON.parse(inspectWrapper())}function pickUp(){return JSON.parse(pickUpWrapper())}function putDown(items){strItems = JSON.stringify(items);putDownWrapper(strItems)}function isTouching(item){return JSON.parse(isTouchingWrapper(item))}function isNear(item){return JSON.parse(isNearWrapper(item))}";
         var execCode = wrapperCode + this.functions + this.code;
 
         var initFunc = function(interpreter, scope) {
@@ -513,6 +513,9 @@ function onUpdateEvent()
             mainScope = scope;
              interpreter.setProperty(scope, 'dance',
                  interpreter.createNativeFunction(dance));
+
+            interpreter.setProperty(scope, 'inspectWrapper',
+                 interpreter.createNativeFunction(inspectWrapper));
 
             interpreter.setProperty(scope, 'pickUpWrapper',
                  interpreter.createNativeFunction(pickUpWrapper));
@@ -627,6 +630,38 @@ function dance()
     codePause = true;
     jaxi.anims.play('dance');
     window.setTimeout(idolJaxi, 1000);
+}
+
+function inspectWrapper()
+{
+    var result;
+
+    var jaxiRect = jaxi.getBounds();
+    var flowersArray = vue.interactivesArray.filter(obj => {
+        return obj.isFlower;
+    });
+    flowersArray.some(flower => {
+        
+        var rect = flower.getBounds();
+        rect.height = flower.height;
+
+        //  var graphics = phaser.add.graphics({ fillStyle: { color: 0x0000ff } });
+        //  graphics.fillRectShape(rect);
+
+        //  graphics = phaser.add.graphics({ fillStyle: { color: 0xff0000 } });
+        //  graphics.fillRectShape(jaxiRect);
+
+        var iRect = Phaser.Geom.Intersects.GetRectangleIntersection(jaxiRect, rect);
+        if(iRect.x > 0 && 
+        iRect.y > 0)
+        {
+            
+            result = flower.vals;            
+        }
+        
+    });
+
+    return JSON.stringify(result);
 }
 
 function pickUpWrapper()
