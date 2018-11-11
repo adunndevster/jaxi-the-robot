@@ -406,9 +406,10 @@ function create ()
 
         if((bodyA.gameObject === jaxi || bodyB.gameObject === jaxi))
         {
+            console.log(bodyA, bodyB)
             //teleporter
             if(((bodyA.gameObject != null && bodyA.gameObject.isTeleporter) || 
-            (bodyB != null && bodyB.isTeleporter)))
+            (bodyB.gameObject != null && bodyB.gameObject.isTeleporter)))
             {
                 finishLevel();
             }

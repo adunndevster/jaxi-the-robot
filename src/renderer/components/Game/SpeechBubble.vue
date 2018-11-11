@@ -79,7 +79,7 @@
   border-color:black; */
   background-color: white;
   min-width: 150px;
-  max-width: 280px;
+  max-width: 450px;
   font-family: 'Comic Sans MS';
   font-size: 14px;
   padding: 30px;
