@@ -152,13 +152,31 @@ export default {
         sprite.vals = new Object();
         sprite.vals.id = "flower_" + vue.totalFlowers;
         sprite.vals.color = 'pink'
-        if(rando == 2 || rando == 5 || rando == 8) sprite.vals.color = 'yellow';
-        if(rando % 3 == 0) sprite.vals.color = 'blue';
+        if(element.color != '')
+        {
+            sprite.vals.color = element.color;
+            
+        } else {
+            if(rando == 2 || rando == 5 || rando == 8) sprite.vals.color = 'yellow';
+            if(rando % 3 == 0) sprite.vals.color = 'blue';
+        }
         sprite.vals.petals = 6;
-        if(rando > 3) sprite.vals.petals = 8;
-        if(rando > 6) sprite.vals.petals = 12;
+        if(element.petals != ''){
+            sprite.vals.petals = element.petals;
+            var flowerFrame = 1;
+            if(element.color == 'yellow') flowerFrame = 2;
+            if(element.color == 'blue') flowerFrame = 3;
+            if(element.petals == 8) flowerFrame += 3;
+            if(element.petals == 12) flowerFrame += 6;
+            sprite.anims.play('all_flower', false, flowerFrame-1);
+            sprite.anims.pause();
+        } else {
+            if(rando > 3) sprite.vals.petals = 8;
+            if(rando > 6) sprite.vals.petals = 12;
             sprite.anims.play('all_flower', false, rando-1);
             sprite.anims.pause();
+        }
+        
         vue.setupToolTip(sprite, 'id: ' + sprite.vals.id + '<br>color: ' + sprite.vals.color + '<br>petals: ' + sprite.vals.petals );
         vue.totalFlowers++;
         vue.interactivesArray.push(sprite);
@@ -226,7 +244,7 @@ function preload ()
 
     //scenery
     var sceneryFiles = ['g_sc_bluebotbuilding.png', 'g_sc_junk_silhouette1.png', 'g_sc_rock1.png', 'g_sc_rocks.png', 'g_sc_trashclump1.png',
-                        'g_sc_container.png', 'g_sc_rock2.png', 'g_sc_crane.png', 'g_sc_fence.png'];
+                        'g_sc_container.png', 'g_sc_rock2.png', 'g_sc_crane.png', 'g_sc_fence.png', 'g_rock_crystal.png'];
     sceneryFiles.forEach(file => {
         this.load.image(file.split('.')[0], require('../assets/toybox/scenery/' + file));
     });
