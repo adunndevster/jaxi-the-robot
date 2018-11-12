@@ -129,21 +129,25 @@ export default {
         this.runGame();
 
     },
-    makeFLower: function(element, dirt)
+    makeFLower: function(element, dirt, skipGrow)
     {
         var sprite = phaser.matter.add.sprite(element.x, element.y, "g_flower").setStatic(true);
         if(dirt) dirt.depth = 10000;
-        sprite.y += sprite.height/2;
-        sprite.scaleX = sprite.scaleY = 0;
-        phaser.tweens.add({
-                targets: sprite,
-                scaleY: 1,
-                scaleX: 1,
-                y: (dirt) ? sprite.y - sprite.height : sprite.y - sprite.height/2,
-                ease: 'Quad.easeOut',
-                //delay:300,
-                duration: 300
-            });
+        if(!skipGrow)
+        {
+            sprite.y += sprite.height/2;
+            sprite.scaleX = sprite.scaleY = 0;
+            phaser.tweens.add({
+                    targets: sprite,
+                    scaleY: 1,
+                    scaleX: 1,
+                    y: (dirt) ? sprite.y - sprite.height : sprite.y - sprite.height/2,
+                    ease: 'Quad.easeOut',
+                    //delay:300,
+                    duration: 300
+                });
+        }
+        
         sprite.setSensor(true);
         sprite.isFlower = true;
         if(dirt) sprite.dirt = dirt;
@@ -180,6 +184,34 @@ export default {
         vue.setupToolTip(sprite, 'id: ' + sprite.vals.id + '<br>color: ' + sprite.vals.color + '<br>petals: ' + sprite.vals.petals );
         vue.totalFlowers++;
         vue.interactivesArray.push(sprite);
+    },
+    scrambleFlowers: function()
+    {
+        var flowersArray = vue.interactivesArray.filter(obj => {
+            return obj.isFlower;
+        });
+        let rando = Math.floor(Math.random()*3) + 1;
+
+        if(rando == 1)
+        {
+            //do nothing
+        } else {
+            let offset = (rando === 2) ? 1 : -1;
+            let zeroX = flowersArray[0].x;
+            let zeroY = flowersArray[0].y;
+            for(var i = 0; i<flowersArray.length; i++)
+            {
+                if(i === flowersArray.length-1)
+                {
+                    flowersArray[i].x = zeroX;
+                    flowersArray[i].y = zeroY;
+                } else {
+                    flowersArray[i].x = flowersArray[i + offset].x;
+                    flowersArray[i].y = flowersArray[i + offset].y;
+                }
+                
+            }
+        }
     },
     runGame: function()
     {
@@ -354,7 +386,7 @@ function create ()
         }
         else if(element.type.indexOf('g_flower') != -1)
         {
-            vue.makeFLower(element);
+            vue.makeFLower(element, null, true);
         }
         else if(element.type.indexOf('g_gator') != -1)
         {
@@ -404,6 +436,9 @@ function create ()
             }
         }
     });
+
+    //scramble flowers
+    vue.scrambleFlowers();
 
     this.matter.world.on('sleepstart', function (event) {
         
