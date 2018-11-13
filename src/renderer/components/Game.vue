@@ -197,20 +197,39 @@ export default {
             //do nothing
         } else {
             let offset = (rando === 2) ? 1 : -1;
-            let zeroX = flowersArray[0].x;
-            let zeroY = flowersArray[0].y;
-            for(var i = 0; i<flowersArray.length; i++)
+            if(offset === 1)
             {
-                if(i === flowersArray.length-1)
+                let zeroX = flowersArray[0].x;
+                let zeroY = flowersArray[0].y;
+                for(var i = 0; i<flowersArray.length; i++)
                 {
-                    flowersArray[i].x = zeroX;
-                    flowersArray[i].y = zeroY;
-                } else {
-                    flowersArray[i].x = flowersArray[i + offset].x;
-                    flowersArray[i].y = flowersArray[i + offset].y;
+                    if(i === flowersArray.length-1)
+                    {
+                        flowersArray[i].x = zeroX;
+                        flowersArray[i].y = zeroY;
+                    } else {
+                        flowersArray[i].x = flowersArray[i + offset].x;
+                        flowersArray[i].y = flowersArray[i + offset].y;
+                    }
+                    
                 }
-                
+            } else {
+                let zeroX = flowersArray[flowersArray.length-1].x;
+                let zeroY = flowersArray[flowersArray.length-1].y;
+                for(var i = flowersArray.length-1; i>0; i--)
+                {
+                    if(i === 1)
+                    {
+                        flowersArray[i].x = zeroX;
+                        flowersArray[i].y = zeroY;
+                    } else {
+                        flowersArray[i].x = flowersArray[i + offset].x;
+                        flowersArray[i].y = flowersArray[i + offset].y;
+                    }
+                    
+                }
             }
+            
         }
     },
     runGame: function()
