@@ -99,8 +99,8 @@ export default {
     this.functions = localStorage.getItem('jaxiFunctions');
     var editor = ace.edit("editor");
     var functionsEditor = ace.edit("functionsEditor");
-    editor.getSession().setValue(this.code);
-    functionsEditor.getSession().setValue(this.functions);
+    if(this.code) editor.getSession().setValue(this.code);
+    if(this.functions) functionsEditor.getSession().setValue(this.functions);
 
     var langTools = require('brace/ext/language_tools') //language extension prerequsite...
 
