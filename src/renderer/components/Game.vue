@@ -156,7 +156,7 @@ export default {
         sprite.vals = new Object();
         sprite.vals.id = "flower_" + vue.totalFlowers;
         sprite.vals.color = 'pink'
-        if(element.color != '')
+        if(element.color)
         {
             sprite.vals.color = element.color;
             
@@ -165,7 +165,7 @@ export default {
             if(rando % 3 == 0) sprite.vals.color = 'blue';
         }
         sprite.vals.petals = 6;
-        if(element.petals != ''){
+        if(element.petals){
             sprite.vals.petals = element.petals;
             var flowerFrame = 1;
             if(element.color == 'yellow') flowerFrame = 2;
