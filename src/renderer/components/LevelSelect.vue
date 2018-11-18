@@ -47,7 +47,7 @@
 
       <levels startLevel="30" />
       
-      <div v-bind:class="{'zone-bg':true, 'candy-city':true, brighten:(zone==4)}"></div>
+      <div v-bind:class="{'zone-bg':true, 'candycity':true, brighten:(zone==4)}"></div>
       
     </div>
     <div class="zone">
@@ -179,7 +179,7 @@ nav{
 {
   background-image: url("~@/assets/levels/mcCave.png");
 }
-.zone .candy-city
+.zone .candycity
 {
   background-image: url("~@/assets/levels/mcCandyCity.png");
 }

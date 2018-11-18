@@ -48,6 +48,8 @@
   <div class="game-area">
       <div id='gameCanvas'></div>
   </div>
+
+  <div id="codeLabel">{{activeCode}}</div>
 </div>
 </template>
 
@@ -83,6 +85,8 @@ export default {
   data() {
         return {
             code: '',
+            execCode: '',
+            activeCode: null,
             functions: '',
             codeMode: 'main', //main, functions, api
             animationStep: 0,
@@ -191,46 +195,50 @@ export default {
             return obj.isFlower;
         });
         let rando = Math.floor(Math.random()*3) + 1;
-
-        if(rando == 1)
+        
+        if(flowersArray.length > 0)
         {
-            //do nothing
-        } else {
-            let offset = (rando === 2) ? 1 : -1;
-            if(offset === 1)
+            if(rando == 1)
             {
-                let zeroX = flowersArray[0].x;
-                let zeroY = flowersArray[0].y;
-                for(var i = 0; i<flowersArray.length; i++)
-                {
-                    if(i === flowersArray.length-1)
-                    {
-                        flowersArray[i].x = zeroX;
-                        flowersArray[i].y = zeroY;
-                    } else {
-                        flowersArray[i].x = flowersArray[i + offset].x;
-                        flowersArray[i].y = flowersArray[i + offset].y;
-                    }
-                    
-                }
+                //do nothing
             } else {
-                let zeroX = flowersArray[flowersArray.length-1].x;
-                let zeroY = flowersArray[flowersArray.length-1].y;
-                for(var i = flowersArray.length-1; i>0; i--)
+                let offset = (rando === 2) ? 1 : -1;
+                if(offset === 1)
                 {
-                    if(i === 1)
+                    let zeroX = flowersArray[0].x;
+                    let zeroY = flowersArray[0].y;
+                    for(var i = 0; i<flowersArray.length; i++)
                     {
-                        flowersArray[i].x = zeroX;
-                        flowersArray[i].y = zeroY;
-                    } else {
-                        flowersArray[i].x = flowersArray[i + offset].x;
-                        flowersArray[i].y = flowersArray[i + offset].y;
+                        if(i === flowersArray.length-1)
+                        {
+                            flowersArray[i].x = zeroX;
+                            flowersArray[i].y = zeroY;
+                        } else {
+                            flowersArray[i].x = flowersArray[i + offset].x;
+                            flowersArray[i].y = flowersArray[i + offset].y;
+                        }
+                        
                     }
-                    
+                } else {
+                    let zeroX = flowersArray[flowersArray.length-1].x;
+                    let zeroY = flowersArray[flowersArray.length-1].y;
+                    for(var i = flowersArray.length-1; i>0; i--)
+                    {
+                        if(i === 1)
+                        {
+                            flowersArray[i].x = zeroX;
+                            flowersArray[i].y = zeroY;
+                        } else {
+                            flowersArray[i].x = flowersArray[i + offset].x;
+                            flowersArray[i].y = flowersArray[i + offset].y;
+                        }
+                        
+                    }
                 }
+                
             }
-            
         }
+        
     },
     runGame: function()
     {
@@ -295,7 +303,9 @@ function preload ()
 
     //scenery
     var sceneryFiles = ['g_sc_bluebotbuilding.png', 'g_sc_junk_silhouette1.png', 'g_sc_rock1.png', 'g_sc_rocks.png', 'g_sc_trashclump1.png',
-                        'g_sc_container.png', 'g_sc_rock2.png', 'g_sc_crane.png', 'g_sc_fence.png', 'g_rock_crystal.png'];
+                        'g_sc_container.png', 'g_sc_rock2.png', 'g_sc_crane.png', 'g_sc_fence.png', 'g_rock_crystal.png',
+                        'g_sc_bench.png', 'g_sc_building_blue.png', 'g_sc_building_pink.png', 'g_sc_building_rounded.png', 'g_sc_building_yellow.png',
+                        'g_sc_mailbox.png', 'g_sc_sign.png', 'g_sc_trachcan.png', 'g_sc_tree.png'];
     sceneryFiles.forEach(file => {
         this.load.image(file.split('.')[0], require('../assets/toybox/scenery/' + file));
     });
@@ -578,7 +588,7 @@ function onUpdateEvent()
         this.functions = functionsEditor.getSession().getValue();
         var wrapperCode = 'Array.prototype.copyWithin||(Array.prototype.copyWithin=function(r,t){if(null==this)throw new TypeError("this is null or not defined");var e=Object(this),n=e.length>>>0,o=r>>0,i=o<0?Math.max(n+o,0):Math.min(o,n),a=t>>0,f=a<0?Math.max(n+a,0):Math.min(a,n),l=arguments[2],y=void 0===l?n:l>>0,p=y<0?Math.max(n+y,0):Math.min(y,n),u=Math.min(p-f,n-i),h=1;for(f<i&&i<f+u&&(h=-1,f+=u-1,i+=u-1);0<u;)f in e?e[i]=e[f]:delete e[i],f+=h,i+=h,u--;return e}),Array.prototype.every||(Array.prototype.every=function(r,t){"use strict";var e,n;if(null==this)throw new TypeError("this is null or not defined");var o=Object(this),i=o.length>>>0;if("function"!=typeof r)throw new TypeError;for(1<arguments.length&&(e=t),n=0;n<i;){var a;if(n in o)if(a=o[n],!r.call(e,a,n,o))return!1;n++}return!0}),Array.prototype.fill||Object.defineProperty(Array.prototype,"fill",{value:function(r){if(null==this)throw new TypeError("this is null or not defined");for(var t=Object(this),e=t.length>>>0,n=arguments[1]>>0,o=n<0?Math.max(e+n,0):Math.min(n,e),i=arguments[2],a=void 0===i?e:i>>0,f=a<0?Math.max(e+a,0):Math.min(a,e);o<f;)t[o]=r,o++;return t}}),Array.prototype.find||Object.defineProperty(Array.prototype,"find",{value:function(r){if(null==this)throw new TypeError(\'"this" is null or not defined\');var t=Object(this),e=t.length>>>0;if("function"!=typeof r)throw new TypeError("predicate must be a function");for(var n=arguments[1],o=0;o<e;){var i=t[o];if(r.call(n,i,o,t))return i;o++}},configurable:!0,writable:!0}),Array.prototype.findIndex||Object.defineProperty(Array.prototype,"findIndex",{value:function(r){if(null==this)throw new TypeError("\'this\' is null or not defined");var t=Object(this),e=t.length>>>0;if("function"!=typeof r)throw new TypeError("predicate must be a function");for(var n=arguments[1],o=0;o<e;){var i=t[o];if(r.call(n,i,o,t))return o;o++}return-1},configurable:!0,writable:!0}),Array.prototype.forEach||(Array.prototype.forEach=function(r){var t,e;if(null==this)throw new TypeError("this is null or not defined");var n=Object(this),o=n.length>>>0;if("function"!=typeof r)throw new TypeError(r+" is not a function");for(1<arguments.length&&(t=arguments[1]),e=0;e<o;){var i;e in n&&(i=n[e],r.call(t,i,e,n)),e++}}),Array.prototype.includes||Object.defineProperty(Array.prototype,"includes",{value:function(r,t){if(null==this)throw new TypeError("\'this\' is null or not defined");var e=Object(this),n=e.length>>>0;if(0===n)return!1;var o,i,a=0|t,f=Math.max(0<=a?a:n-Math.abs(a),0);for(;f<n;){if((o=e[f])===(i=r)||"number"==typeof o&&"number"==typeof i&&isNaN(o)&&isNaN(i))return!0;f++}return!1}}),Array.prototype.map||(Array.prototype.map=function(r){var t,e,n;if(null==this)throw new TypeError("this is null or not defined");var o=Object(this),i=o.length>>>0;if("function"!=typeof r)throw new TypeError(r+" is not a function");for(1<arguments.length&&(t=arguments[1]),e=new Array(i),n=0;n<i;){var a,f;n in o&&(a=o[n],f=r.call(t,a,n,o),e[n]=f),n++}return e}),Array.prototype.reduce||Object.defineProperty(Array.prototype,"reduce",{value:function(r){if(null===this)throw new TypeError("Array.prototype.reduce called on null or undefined");if("function"!=typeof r)throw new TypeError(r+" is not a function");var t,e=Object(this),n=e.length>>>0,o=0;if(2<=arguments.length)t=arguments[1];else{for(;o<n&&!(o in e);)o++;if(n<=o)throw new TypeError("Reduce of empty array with no initial value");t=e[o++]}for(;o<n;)o in e&&(t=r(t,e[o],o,e)),o++;return t}}),"function"!=typeof Array.prototype.reduceRight&&(Array.prototype.reduceRight=function(r){"use strict";if(null==this)throw new TypeError("Array.prototype.reduce called on null or undefined");if("function"!=typeof r)throw new TypeError(r+" is not a function");var t,e=Object(this),n=(e.length>>>0)-1;if(2<=arguments.length)t=arguments[1];else{for(;0<=n&&!(n in e);)n--;if(n<0)throw new TypeError("Reduce of empty array with no initial value");t=e[n--]}for(;0<=n;n--)n in e&&(t=r(t,e[n],n,e));return t});';
         wrapperCode += "function inspect(){return JSON.parse(inspectWrapper())}function pickUp(){return JSON.parse(pickUpWrapper())}function putDown(items){strItems = JSON.stringify(items);putDownWrapper(strItems)}function isTouching(item){return JSON.parse(isTouchingWrapper(item))}function isNear(item){return JSON.parse(isNearWrapper(item))}";
-        var execCode = wrapperCode + this.functions + this.code;
+        vue.execCode = wrapperCode + this.functions + this.code;
 
         var initFunc = function(interpreter, scope) {
 
@@ -618,7 +628,7 @@ function onUpdateEvent()
 
         };
 
-        jaxiInterpreter = new Interpreter(execCode, initFunc);
+        jaxiInterpreter = new Interpreter(vue.execCode, initFunc);
         
         nextStep();
         console.log(jaxiInterpreter);
@@ -881,7 +891,9 @@ function doAppeasementChecks(appeasementValue)
                 
                  if((appeasementObj.petals && flower.vals.petals == appeasementObj.petals) ||
                     (appeasementObj.color && flower.vals.color == appeasementObj.color) ||
-                    (appeasementObj.count))
+                    (appeasementObj.minpetals) ||
+                    appeasementObj.count ||
+                    appeasementObj.code)
                  {
                      console.log('making iRect...');
                     iRect = Phaser.Geom.Intersects.GetRectangleIntersection(gatorRect, flowerRect);
@@ -891,16 +903,38 @@ function doAppeasementChecks(appeasementValue)
 
                     //  graphics = phaser.add.graphics({ fillStyle: { color: 0xff0000 } });
                     //  graphics.fillRectShape(flowerRect);
+                    if(iRect && iRect.x > 0 && iRect.y > 0)
+                    {
+                        if(appeasementObj.minpetals)
+                        {
+                            flowerCount+=flower.vals.petals;
+                        } else if(appeasementObj.code)
+                        {
+                            if(vue.activeCode.indexOf(appeasementObj.code))
+                            {
+                                flowerCount++;
+                            }
+                        } else {
+                            flowerCount++;
+                        }
+                    }
                  } 
-                if(iRect && iRect.x > 0 && iRect.y > 0)
-                {
-                    flowerCount++;
-                }
+                
             });
             console.log(flowerCount);
-            if(flowerCount == appeasementObj.needed)
+            let comparison = appeasementObj.compare ? appeasementObj.compare : "equals";
+            if((comparison == "equals" && flowerCount == appeasementObj.needed) ||
+                (comparison == "greater" && flowerCount >= appeasementObj.needed) ||
+                (comparison == "less" && flowerCount <= appeasementObj.needed))
             {
                 isGatorHappy = true;
+            } else {
+                if(appeasementObj.code)
+                {
+                    var sayArray = [{character:gator, text:'I am exacting! Did you give it to me the way I asked, using "' + appeasementObj.code + '"?'}];
+                    vue.say(sayArray);
+                }
+                
             }
             
         } else if(gator.appeasement == "words" && gator.appeasementValue == appeasementValue)
@@ -1076,9 +1110,9 @@ function isTouchingWrapper(item)
 function isNearWrapper(item)
 {
     let isNear = "false";
-    var jaxiRect = new Phaser.Geom.Rectangle(jaxi.getBounds().x - 150, 
+    var jaxiRect = new Phaser.Geom.Rectangle(jaxi.getBounds().x - 20, 
                                                       jaxi.getBounds().y, 
-                                                      jaxi.getBounds().width + 300, 
+                                                      jaxi.getBounds().width + 40, 
                                                       jaxi.getBounds().height);
 
     vue.interactivesArray.forEach(obj => {
@@ -1271,16 +1305,7 @@ function nextStep() {
     codePause = false;
     do{
         try{
-            var hasMoreCode = jaxiInterpreter.step();
-            if (jaxiInterpreter.stateStack.length) {
-                var node = jaxiInterpreter.stateStack[jaxiInterpreter.stateStack.length - 1].node;
-                var start = node.start;
-                var end = node.end;
-            } else {
-                var start = 0;
-                var end = 0;
-            }
-            var activeCode = vue.code.substring(start, end);
+            var activeCode = getActiveCode();
 
             var editor = ace.edit("editor");
             editor.focus();
@@ -1289,10 +1314,10 @@ function nextStep() {
             //editor.addSelectionMarker(range);
             //createSelection(start, end);
 
-            // var activeCode = vue.code.substring(start, end);
+            // var activeCode = vue.execCode.substring(start, end);
             // console.clear();
             // console.log(activeCode);
-
+            var hasMoreCode = jaxiInterpreter.step();
         } catch(error)
         {
             console.log(error);
@@ -1306,6 +1331,22 @@ function nextStep() {
         }
     } while(hasMoreCode && !codePause);
 }
+function getActiveCode()
+{
+    if (jaxiInterpreter.stateStack.length) {
+        var node = jaxiInterpreter.stateStack[jaxiInterpreter.stateStack.length - 1].node;
+        var start = node.start;
+        var end = node.end;
+    } else {
+        var start = 0;
+        var end = 0;
+    }
+    var currentActiveCode = vue.execCode.substring(start, end);
+    if(vue.code.indexOf(currentActiveCode) != -1) {
+        vue.activeCode = currentActiveCode;
+    }
+}
+
 
 function createSelection(start, end) {
 
@@ -1403,6 +1444,16 @@ function createSelection(start, end) {
     height: 100vh;
     width:71vw;
     float: left;
+}
+
+#codeLabel
+{
+    position: absolute;
+    top:20px;
+    right:20px;
+    padding: 6px;
+    background-color: #000000;
+    color: white;
 }
 
 canvas {

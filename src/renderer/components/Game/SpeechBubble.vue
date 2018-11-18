@@ -49,11 +49,35 @@
         var hRatio = gameCanvas.offsetHeight / this.game.config.height
         var charX = obj.character.x * wRatio
         var charY = obj.character.y * hRatio
-        var speechBubbleX = gameCanvasRect.left + charX + (30)
-        var speechBubbleY = gameCanvasRect.top + charY - (obj.character.height / 4) - (bubbleBody.offsetHeight)
+
+        //figure out which quadrant the character is, and render the bubble correctly
+        var midX = gameCanvas.offsetWidth / 2;
+        var midY = gameCanvas.offsetHeight / 2;
+        var offsetX = (charX > midX) ? -bubbleBody.offsetWidth - 120 : 0;
+        var offsetY = (charY < midY) ? bubbleBody.offsetHeight + 90 : 0;
+ 
+        var speechBubbleX = gameCanvasRect.left + charX + (30) + offsetX
+        var speechBubbleY = gameCanvasRect.top + charY - (obj.character.height / 4) - (bubbleBody.offsetHeight) + offsetY
 
         bubble.style.left = speechBubbleX + 'px'
         bubble.style.top = speechBubbleY + 'px'
+
+        if(charX > midX)
+        {
+          bubbleTail.style.left = bubbleBody.offsetWidth - 20 + 'px';
+        } else {
+          bubbleTail.style.left = 17 + 'px';
+        }
+        if(charY < midY)
+        {
+          bubbleTail.style.transform = 'rotate('+180+'deg)';
+          bubbleTail.style.bottom = bubbleBody.offsetHeight + 30 + 'px';
+        } else {
+          bubbleTail.style.transform = 'rotate('+0+'deg)';
+          bubbleTail.style.bottom = 3 + 'px';
+        }
+        
+
 
         this.currentPos++
       }
