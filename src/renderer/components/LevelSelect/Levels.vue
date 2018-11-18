@@ -2,12 +2,12 @@
   <div class="levels">
         <div class="row">
           <div class="col" v-for="n in 5">
-            <a href="#" v-on:click="gotoLevel(n + Number(startLevel))"><div class="level">{{n + Number(startLevel)}}</div></a>
+            <a v-on:click="gotoLevel(n + Number(startLevel))"><div class="level">{{n + Number(startLevel)}}</div></a>
           </div>
         </div>
         <div class="row">
           <div class="col" v-for="n in 5">
-            <a href="#" v-on:click="gotoLevel(n + 5 + Number(startLevel))"><div class="level">{{n + 5 + Number(startLevel)}}</div></a>
+            <a v-on:click="gotoLevel(n + 5 + Number(startLevel))"><div class="level">{{n + 5 + Number(startLevel)}}</div></a>
           </div>
         </div>
       </div>
@@ -21,7 +21,8 @@ export default {
   props: ['startLevel'],
   methods: {
     gotoLevel: function (levelNum) {
-      this.$emit('fadeFunc')
+      this.$parent.$emit('fadeFunc', true)
+      
       window.setTimeout(function () {
         router.push({ name: 'Game', params: { level: (levelNum)}})
         location.reload() // TODO: find a way to clear the memory space, and smoothly transition between pages... Why? So we can stick to the SPA vue paradigm.
@@ -64,6 +65,7 @@ export default {
 }
 .zone .levels a:hover,a:focus{
   text-decoration: underline black;
+  cursor: pointer;
   color: black;
 }
 </style>

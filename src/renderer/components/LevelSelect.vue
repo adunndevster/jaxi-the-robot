@@ -12,7 +12,7 @@
         The Junkyard
       </div>
       
-      <levels @fadeFunc="setFade" startLevel="0" />
+      <levels startLevel="0" />
 
       <div v-bind:class="{'zone-bg':true, junkyard:true, brighten:(zone==1)}"></div>
 
@@ -86,9 +86,6 @@ export default {
   methods: {
     handleScroll () {
       this.zone = Math.ceil((window.scrollY - 100) / 732) + 1
-    },
-    setFade () {
-      this.$emit('fadeFunc', true)
     }
   },
   created () {
