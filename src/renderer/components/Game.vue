@@ -521,7 +521,17 @@ function create ()
                 if(gator.isAppeased != true)
                 {
                     gator.anims.delayedPlay(1100, 'gator_laugh');
+                    
+                    var appeasementObj = JSON.parse(gator.appeasementValue);
+                    if(appeasementObj.code)
+                    {
+                        var sayArray = [{character:gator, text:'Did you use "' + appeasementObj.code + '"?'}];
+                        vue.say(sayArray);
+                        codePause = true;
+                    }
+
                     restartLevel();
+                    
                 }
                 
             }
@@ -807,9 +817,10 @@ function putDownWrapper(items)
 {
     codePause = true;
     jaxi.anims.play('pickup');
+    var currentActiveCode = vue.activeCode;
     window.setTimeout(function(){
         idolJaxi();
-        doAppeasementChecks();
+        doAppeasementChecks(null, currentActiveCode);
     }, 600);
     if(String(items) == "undefined")
     {
@@ -866,7 +877,7 @@ function putDownItem(item)
     });
     jaxi.bag = jaxi.bag.filter( el => el !== thing );
 }
-function doAppeasementChecks(appeasementValue)
+function doAppeasementChecks(appeasementValue, activeCode)
 {
     //gators
     var response = null;
@@ -905,12 +916,13 @@ function doAppeasementChecks(appeasementValue)
                     //  graphics.fillRectShape(flowerRect);
                     if(iRect && iRect.x > 0 && iRect.y > 0)
                     {
+                        gator.isNearJaxi = true;
                         if(appeasementObj.minpetals)
                         {
                             flowerCount+=flower.vals.petals;
                         } else if(appeasementObj.code)
                         {
-                            if(vue.activeCode.indexOf(appeasementObj.code))
+                            if(activeCode.indexOf(appeasementObj.code) > -1)
                             {
                                 flowerCount++;
                             }
@@ -928,11 +940,11 @@ function doAppeasementChecks(appeasementValue)
                 (comparison == "less" && flowerCount <= appeasementObj.needed))
             {
                 isGatorHappy = true;
+                gator.isAppeased = true;
             } else {
-                if(appeasementObj.code)
+                if(appeasementObj.code && gator.isNearJaxi)
                 {
-                    var sayArray = [{character:gator, text:'I am exacting! Did you give it to me the way I asked, using "' + appeasementObj.code + '"?'}];
-                    vue.say(sayArray);
+                    gator.didStopJaxi = true;
                 }
                 
             }
