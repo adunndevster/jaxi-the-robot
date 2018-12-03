@@ -2802,6 +2802,78 @@
 					"trimmed": false,
 					"spriteSourceSize": {"x":0,"y":0,"w":293,"h":257},
 					"sourceSize": {"w":293,"h":257}
+				}
+				,{
+					"filename": "mcPink_SpriteSheet0349",
+					"frame": {"x":1495,"y":3411,"w":293,"h":257},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":293,"h":257},
+					"sourceSize": {"w":293,"h":257}
+				}
+				,{
+					"filename": "mcPink_SpriteSheet0350",
+					"frame": {"x":5,"y":3673,"w":293,"h":257},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":293,"h":257},
+					"sourceSize": {"w":293,"h":257}
+				}
+				,{
+					"filename": "mcPink_SpriteSheet0351",
+					"frame": {"x":303,"y":3673,"w":293,"h":257},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":293,"h":257},
+					"sourceSize": {"w":293,"h":257}
+				}
+				,{
+					"filename": "mcPink_SpriteSheet0352",
+					"frame": {"x":601,"y":3673,"w":293,"h":257},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":293,"h":257},
+					"sourceSize": {"w":293,"h":257}
+				}
+				,{
+					"filename": "mcPink_SpriteSheet0353",
+					"frame": {"x":899,"y":3673,"w":293,"h":257},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":293,"h":257},
+					"sourceSize": {"w":293,"h":257}
+				}
+				,{
+					"filename": "mcPink_SpriteSheet0354",
+					"frame": {"x":1197,"y":3673,"w":293,"h":257},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":293,"h":257},
+					"sourceSize": {"w":293,"h":257}
+				}
+				,{
+					"filename": "mcPink_SpriteSheet0355",
+					"frame": {"x":1197,"y":3673,"w":293,"h":257},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":293,"h":257},
+					"sourceSize": {"w":293,"h":257}
+				}
+				,{
+					"filename": "mcPink_SpriteSheet0356",
+					"frame": {"x":1495,"y":3673,"w":293,"h":257},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":293,"h":257},
+					"sourceSize": {"w":293,"h":257}
+				}
+				,{
+					"filename": "mcPink_SpriteSheet0357",
+					"frame": {"x":5,"y":5,"w":293,"h":257},
+					"rotated": false,
+					"trimmed": false,
+					"spriteSourceSize": {"x":0,"y":0,"w":293,"h":257},
+					"sourceSize": {"w":293,"h":257}
 				}]
 		}
 	],
