@@ -247,6 +247,14 @@ export default {
         sprite.isSnowball = true;
         return sprite;
     },
+    makeTarget: function(element, isDark)
+    {
+        var sprite = phaser.matter.add.sprite(element.x, element.y, (isDark ? "g_darktarget" : "g_target")).setStatic(true);
+        sprite.anims.play(isDark ? "darktarget_idol" : "target_idol");
+        sprite.isTarget = true;
+        sprite.isDarkTarget = isDark;
+        return sprite;
+    },
     runGame: function()
     {
 
@@ -309,6 +317,10 @@ function preload ()
     this.load.image("g_gator", require("../assets/toybox/GatorSprites.png"));
     this.load.atlas("g_snowball", require("../assets/toybox/SnowballSprites.png"), require("../assets/toybox/SnowballSprites.json"));
     this.load.image("g_snowball", require("../assets/toybox/SnowballSprites.png"));
+    this.load.atlas("g_darktarget", require("../assets/toybox/DarkTargetSprites.png"), require("../assets/toybox/DarkTargetSprites.json"));
+    this.load.image("g_darktarget", require("../assets/toybox/DarkTargetSprites.png"));
+    this.load.atlas("g_target", require("../assets/toybox/TargetSprites.png"), require("../assets/toybox/TargetSprites.json"));
+    this.load.image("g_target", require("../assets/toybox/TargetSprites.png"));
 
     //scenery
     var sceneryFiles = ['g_sc_bluebotbuilding.png', 'g_sc_junk_silhouette1.png', 'g_sc_rock1.png', 'g_sc_rocks.png', 'g_sc_trashclump1.png',
@@ -358,6 +370,14 @@ function create ()
     //snowball
     this.anims.create({ key: 'snowball_idol', frames: this.anims.generateFrameNames('g_snowball', {prefix:'mcSnowball_SpriteSheet', start:0, end:0, zeroPad:4}), repeat: 0 });
     this.anims.create({ key: 'snowball_break', frames: this.anims.generateFrameNames('g_snowball', {prefix:'mcSnowball_SpriteSheet', start:2, end:20, zeroPad:4}), repeat: 0 });
+
+    //dark target
+    this.anims.create({ key: 'darktarget_idol', frames: this.anims.generateFrameNames('g_darktarget', {prefix:'mcDarkTarget_SpriteSheet', start:1, end:24, zeroPad:4}), repeat: -1 });
+    this.anims.create({ key: 'darktarget_break', frames: this.anims.generateFrameNames('g_darktarget', {prefix:'mcDarkTarget_SpriteSheet', start:25, end:33, zeroPad:4}), repeat: 0 });
+
+    //target
+    this.anims.create({ key: 'target_idol', frames: this.anims.generateFrameNames('g_target', {prefix:'mcTarget_SpriteSheet', start:1, end:24, zeroPad:4}), repeat: -1 });
+    this.anims.create({ key: 'target_break', frames: this.anims.generateFrameNames('g_target', {prefix:'mcTarget_SpriteSheet', start:25, end:30, zeroPad:4}), repeat: 0 });
     
 
     levelData.level.elements.forEach(element => {
@@ -368,6 +388,10 @@ function create ()
             bg.setCollidesWith([]);
             bg.displayWidth = game.config.width;
             bg.displayHeight = game.config.height;
+            bg.setOrigin(.5,.5);
+            bg.x = bg.width/2;
+            bg.y = bg.height/2;
+            vue.bg = bg;
         } 
         else if(element.type.indexOf('jaxi') != -1)
         {
@@ -401,6 +425,14 @@ function create ()
             sprite.isTeleporter = true;
             vue.setupToolTip(sprite, 'teleporter');
             vue.interactivesArray.push(sprite);
+        }
+        else if(element.type.indexOf('g_target') != -1)
+        {
+            vue.makeTarget(element, false);
+        }
+        else if(element.type.indexOf('g_darktarget') != -1)
+        {
+            vue.makeTarget(element, true);
         }
         else if(element.type.indexOf('g_tar') != -1)
         {
@@ -567,39 +599,82 @@ function create ()
             }, 205);
         }
 
+        //targets
+        if((bodyA.gameObject && bodyA.gameObject.isTarget) ||
+            (bodyB.gameObject && bodyB.gameObject.isTarget))
+        {
+            var target = (bodyA.gameObject && bodyA.gameObject.isTarget) ? bodyA.gameObject : bodyB.gameObject;
+
+            target.anims.play(target.isDarkTarget ? 'darktarget_break' : 'target_break');
+
+            window.setTimeout(function()
+            {
+                target.x = -9999;
+                phaser.matter.world.remove(target);
+            }, target.isDarkTarget ? 275 : 185);
+
+            if(target.isDarkTarget)
+            {
+                phaser.tweens.addCounter({
+                from: 255,
+                to: 20,
+                duration: 1000,
+                onStart: function(tween)
+                {
+                    codePause = true;
+                    jaxiInterpreter = null;
+                },
+                onUpdate: function (tween)
+                {
+                    var value = Math.floor(tween.getValue());
+                    //var valueB = 20 + Math.floor(tween.getValue() - 20);
+                    var distortion = 1 + ((255 - tween.getValue()) / 9000);
+
+                    vue.bg.setTint(Phaser.Display.Color.GetColor(value, value, value));
+                    vue.bg.scaleX = vue.bg.scaleY = distortion;
+                    //vue.bg.angle = distortion;
+                },
+                onComplete: function(tween)
+                {
+                    codePause = true;
+                }
+                });
+            }
+        }
+
     });
     
     // waiting for user input
-        this.input.on("pointerdown", function(pointer){
- 
-            // getting Matter bodies under the pointer
-            var bodiesUnderPointer = Phaser.Physics.Matter.Matter.Query.point(this.matter.world.localWorld.bodies, pointer);
- 
-            // if there isn't any body under the pointer...
-            //if(bodiesUnderPointer.length == 0){
- 
-                // create a crate
-                var sprite = this.matter.add.sprite(pointer.x, pointer.y, "teleporter");
-            //}
- 
-            // this is where I wanted to remove the crate. Unfortunately I did not find a quick way to delete the Sprite
-            // bound to a Matter body, so I am setting it to invisible, then remove the body.
-            //else{
-                //bodiesUnderPointer[0].gameObject.visible = false;
-                //this.matter.world.remove(bodiesUnderPointer[0])
-            //}
-        }, this);
+    this.input.on("pointerdown", function(pointer){
+
+        // getting Matter bodies under the pointer
+        var bodiesUnderPointer = Phaser.Physics.Matter.Matter.Query.point(this.matter.world.localWorld.bodies, pointer);
+
+        // if there isn't any body under the pointer...
+        //if(bodiesUnderPointer.length == 0){
+
+            // create a crate
+            var sprite = this.matter.add.sprite(pointer.x, pointer.y, "teleporter");
+        //}
+
+        // this is where I wanted to remove the crate. Unfortunately I did not find a quick way to delete the Sprite
+        // bound to a Matter body, so I am setting it to invisible, then remove the body.
+        //else{
+            //bodiesUnderPointer[0].gameObject.visible = false;
+            //this.matter.world.remove(bodiesUnderPointer[0])
+        //}
+    }, this);
 
 
-        vue.chopperbot = chopperbot;
-        vue.chopperbot_flyAway = chopperbot_flyAway;
-        vue.jaxi = jaxi;
-        var animationGetter = require('../assets/levels/levelAnimation' + levelNum + '.js').AnimationGetter;
-        vue.animationArray = animationGetter.get(vue);
-        if(vue.animationArray.length == 0) vue.runCodeDisabled = false;
-        vue.runLevelAnimation();
+    vue.chopperbot = chopperbot;
+    vue.chopperbot_flyAway = chopperbot_flyAway;
+    vue.jaxi = jaxi;
+    var animationGetter = require('../assets/levels/levelAnimation' + levelNum + '.js').AnimationGetter;
+    vue.animationArray = animationGetter.get(vue);
+    if(vue.animationArray.length == 0) vue.runCodeDisabled = false;
+    vue.runLevelAnimation();
 
-        vue.updateEvent = this.time.addEvent({ delay: 500, callback: onUpdateEvent, callbackScope: this, loop: true });
+    vue.updateEvent = this.time.addEvent({ delay: 500, callback: onUpdateEvent, callbackScope: this, loop: true });
 
 }
 
