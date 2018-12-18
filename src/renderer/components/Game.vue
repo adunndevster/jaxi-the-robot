@@ -255,6 +255,14 @@ export default {
         sprite.isDarkTarget = isDark;
         return sprite;
     },
+    makeFireball: function(element)
+    {
+        var sprite = phaser.matter.add.sprite(element.x, element.y, "g_fireball").setStatic(true);
+        var rando = Math.floor(Math.random() * 14) + 1;
+        sprite.anims.play("fireball_idol", false, rando);
+        sprite.isFireball = true;
+        return sprite;
+    },
     runGame: function()
     {
 
@@ -321,6 +329,8 @@ function preload ()
     this.load.image("g_darktarget", require("../assets/toybox/DarkTargetSprites.png"));
     this.load.atlas("g_target", require("../assets/toybox/TargetSprites.png"), require("../assets/toybox/TargetSprites.json"));
     this.load.image("g_target", require("../assets/toybox/TargetSprites.png"));
+    this.load.atlas("g_fireball", require("../assets/toybox/FireballSprites.png"), require("../assets/toybox/FireballSprites.json"));
+    this.load.image("g_fireball", require("../assets/toybox/FireballSprites.png"));
 
     //scenery
     var sceneryFiles = ['g_sc_bluebotbuilding.png', 'g_sc_junk_silhouette1.png', 'g_sc_rock1.png', 'g_sc_rocks.png', 'g_sc_trashclump1.png',
@@ -378,6 +388,10 @@ function create ()
     //target
     this.anims.create({ key: 'target_idol', frames: this.anims.generateFrameNames('g_target', {prefix:'mcTarget_SpriteSheet', start:1, end:24, zeroPad:4}), repeat: -1 });
     this.anims.create({ key: 'target_break', frames: this.anims.generateFrameNames('g_target', {prefix:'mcTarget_SpriteSheet', start:25, end:30, zeroPad:4}), repeat: 0 });
+
+    //fireball
+    this.anims.create({ key: 'fireball_idol', frames: this.anims.generateFrameNames('g_fireball', {prefix:'Fireball_SpriteSheet', start:1, end:15, zeroPad:4}), repeat: -1 });
+    this.anims.create({ key: 'fireball_break', frames: this.anims.generateFrameNames('g_fireball', {prefix:'Fireball_SpriteSheet', start:16, end:22, zeroPad:4}), repeat: 0 });
     
 
     levelData.level.elements.forEach(element => {
@@ -433,6 +447,10 @@ function create ()
         else if(element.type.indexOf('g_darktarget') != -1)
         {
             vue.makeTarget(element, true);
+        }
+        else if(element.type.indexOf('g_fireball') != -1)
+        {
+            vue.makeFireball(element, false);
         }
         else if(element.type.indexOf('g_tar') != -1)
         {
@@ -582,6 +600,13 @@ function create ()
                 }
                 
             }
+
+            //fireball
+            if(((bodyA.gameObject != null && bodyA.gameObject.isGator) || 
+            (bodyB != null && bodyB.isGator)))
+            {
+                restartLevel();
+            }
         }
 
         //snowball collision
@@ -617,8 +642,9 @@ function create ()
             {
                 phaser.tweens.addCounter({
                 from: 255,
-                to: 20,
+                to: 40,
                 duration: 1000,
+                ease: 'Quad.easeOut',
                 onStart: function(tween)
                 {
                     codePause = true;
@@ -628,11 +654,55 @@ function create ()
                 {
                     var value = Math.floor(tween.getValue());
                     //var valueB = 20 + Math.floor(tween.getValue() - 20);
-                    var distortion = 1 + ((255 - tween.getValue()) / 9000);
+                    var distortion = 1 + ((255 - tween.getValue()) / 5000);
 
                     vue.bg.setTint(Phaser.Display.Color.GetColor(value, value, value));
                     vue.bg.scaleX = vue.bg.scaleY = distortion;
-                    //vue.bg.angle = distortion;
+                    vue.bg.angle = (distortion - 1) * 30;
+                },
+                onComplete: function(tween)
+                {
+                    codePause = true;
+                }
+                });
+            }
+        }
+
+        //fireballs
+        if((bodyA.gameObject && bodyA.gameObject.isFireball) ||
+            (bodyB.gameObject && bodyB.gameObject.isFireball))
+        {
+            var target = (bodyA.gameObject && bodyA.gameObject.isFireball) ? bodyA.gameObject : bodyB.gameObject;
+
+            target.anims.play('fireball_break');
+
+            window.setTimeout(function()
+            {
+                target.x = -9999;
+                phaser.matter.world.remove(target);
+            }, 215);
+
+            if(target.isDarkTarget)
+            {
+                phaser.tweens.addCounter({
+                from: 255,
+                to: 40,
+                duration: 1000,
+                ease: 'Quad.easeOut',
+                onStart: function(tween)
+                {
+                    codePause = true;
+                    jaxiInterpreter = null;
+                },
+                onUpdate: function (tween)
+                {
+                    var value = Math.floor(tween.getValue());
+                    //var valueB = 20 + Math.floor(tween.getValue() - 20);
+                    var distortion = 1 + ((255 - tween.getValue()) / 5000);
+
+                    vue.bg.setTint(Phaser.Display.Color.GetColor(value, value, value));
+                    vue.bg.scaleX = vue.bg.scaleY = distortion;
+                    vue.bg.angle = (distortion - 1) * 30;
                 },
                 onComplete: function(tween)
                 {
