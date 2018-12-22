@@ -74,6 +74,8 @@ var vue;
 var phaser;
 var game;
 var mainScope;
+var codeIterations = 0;
+const MAX_ITERATIONS = 100000;
 
 export default {
   name: 'level-select',
@@ -107,14 +109,55 @@ export default {
     if(this.functions) functionsEditor.getSession().setValue(this.functions);
 
     var langTools = require('brace/ext/language_tools') //language extension prerequsite...
+    
+    // data stub:
+    var keywords = [];
+    // [
+    // { name: 'var', description: 'Assign a variable' },
+    // { name: 'if', description: 'If statement' },
+    // { name: 'while', description: 'While statement' },
+    // { name: 'for', description: 'For loop' },
+    // { name: 'forEach', description: 'For-Each loop' },
+    // { name: 'filter', description: 'Array.filter()' },
+    // ];
+    
+
+    if(this.functions) {
+        keywords = keywords.concat(vue.getFunctionNames(this.functions));
+    }
+    console.log(keywords);
+
+    // create a completer object with a required callback function:
+    var completer = {
+    getCompletions: function(editor, session, pos, prefix, callback) {
+        callback(null, keywords.map(function(word) {
+        return {
+            caption: word.description,
+        value: word.name,
+        meta: "Keywords"
+        };
+        }));	
+    }
+    };
+    // finally, bind to langTools:
+    
+    
 
     editor.setOptions({
         enableBasicAutocompletion: true,
         enableSnippets: true,
         enableLiveAutocompletion: true
     });
+
+    editor.completers.push(completer);
   },
   methods: {
+    getFunctionNames: function(code)
+    {
+        var functions = code.split('function');
+        var names = functions.map(block => ({name:block.split("(")[0].trim(), description:block.split("(")[0].trim()})).filter(obj => obj.name.length > 0);
+        return names;
+    },
     setCodeMode: function(mode)
     {
         this.codeMode = mode;
@@ -135,7 +178,10 @@ export default {
     },
     makeFLower: function(element, dirt, skipGrow)
     {
-        var sprite = phaser.matter.add.sprite(element.x, element.y, "g_flower").setStatic(true);
+        var sprite = phaser.matter.add.sprite(element.x, element.y, "g_flower")
+        .setStatic(true)
+        .setCollidesWith([]);
+        
         if(dirt) dirt.depth = 10000;
         if(!skipGrow)
         {
@@ -357,7 +403,7 @@ function create ()
     this.anims.create({ key: 'teleport', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:153, end:248, zeroPad:4}), repeat: 0 });
     this.anims.create({ key: 'die', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:249, end:318, zeroPad:4}), repeat: 0 });
     this.anims.create({ key: 'dance', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:319, end:342, zeroPad:4}), repeat: 0 });
-    this.anims.create({ key: 'climb', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:343, end:349, zeroPad:4}), repeat: -1 });
+    this.anims.create({ key: 'climb', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:343, end:348, zeroPad:4}), repeat: -1 });
     this.anims.create({ key: 'throw', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:350, end:358, zeroPad:4}), repeat: 0 });
 
     //teleporter
@@ -398,13 +444,12 @@ function create ()
         //console.log(element.type);
         if(element.type.indexOf('g_bg') != -1)
         {
-            var bg = this.matter.add.sprite(0, 0, element.type).setStatic(true).setOrigin(0, 0);
+            var bg = this.matter.add.sprite(0, 0, element.type).setStatic(true).setOrigin(.5, .5);
             bg.setCollidesWith([]);
             bg.displayWidth = game.config.width;
             bg.displayHeight = game.config.height;
-            bg.setOrigin(.5,.5);
-            bg.x = bg.width/2;
-            bg.y = bg.height/2;
+            bg.x = bg.displayWidth/2;
+            bg.y = bg.displayHeight/2;
             vue.bg = bg;
         } 
         else if(element.type.indexOf('jaxi') != -1)
@@ -580,9 +625,9 @@ function create ()
 
             //gators
             if(((bodyA.gameObject != null && bodyA.gameObject.isGator) || 
-            (bodyB != null && bodyB.isGator)))
+            (bodyB.gameObject != null && bodyB.gameObject.isGator)))
             {
-                var gator = (bodyA.gameObject.isGator) ? bodyA.gameObject : bodyB;
+                var gator = (bodyA.gameObject.isGator) ? bodyA.gameObject : bodyB.gameObject;
                 if(gator.isAppeased != true)
                 {
                     gator.anims.delayedPlay(1100, 'gator_laugh');
@@ -602,8 +647,8 @@ function create ()
             }
 
             //fireball
-            if(((bodyA.gameObject != null && bodyA.gameObject.isGator) || 
-            (bodyB != null && bodyB.isGator)))
+            if(((bodyA.gameObject != null && bodyA.gameObject.isFireball) || 
+            (bodyB != null && bodyB.isFireball)))
             {
                 restartLevel();
             }
@@ -1272,8 +1317,13 @@ function climb()
             var isUp = rect.y < jaxiRect.y;
             codePause = true;
             jaxi.anims.play('climb');
-            jaxi.x = obj.x - obj.width/2;
             jaxi.setFlipX(false);
+            phaser.tweens.add({
+                targets: jaxi,
+                x: obj.x - obj.width/2,
+                ease: 'Quadratic.Out',
+                duration: 200
+            });
             phaser.tweens.add({
                 targets: jaxi,
                 y: jaxi.y + (obj.height * (isUp ? -1 : 1)),
@@ -1512,6 +1562,14 @@ function saveState()
 
 var range;
 function nextStep() {
+
+    if(codeIterations > MAX_ITERATIONS)
+    {
+        alert("Too many iterations");
+        restartLevel();
+        return;
+    }
+
     codePause = false;
     do{
         try{
@@ -1528,6 +1586,7 @@ function nextStep() {
             // console.clear();
             // console.log(activeCode);
             var hasMoreCode = jaxiInterpreter.step();
+            codeIterations++;
         } catch(error)
         {
             console.log(error);
