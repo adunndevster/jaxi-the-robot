@@ -128,28 +128,28 @@ export default {
     console.log(keywords);
 
     // create a completer object with a required callback function:
-    var completer = {
-    getCompletions: function(editor, session, pos, prefix, callback) {
-        callback(null, keywords.map(function(word) {
-        return {
-            caption: word.description,
-        value: word.name,
-        meta: "Keywords"
-        };
-        }));	
-    }
-    };
-    // finally, bind to langTools:
+    // var completer = {
+    // getCompletions: function(editor, session, pos, prefix, callback) {
+    //     callback(null, keywords.map(function(word) {
+    //     return {
+    //         caption: word.description,
+    //     value: word.name,
+    //     meta: "Keywords"
+    //     };
+    //     }));	
+    // }
+    // };
+    // // finally, bind to langTools:
     
     
 
-    editor.setOptions({
-        enableBasicAutocompletion: true,
-        enableSnippets: true,
-        enableLiveAutocompletion: true
-    });
+    // editor.setOptions({
+    //     enableBasicAutocompletion: true,
+    //     enableSnippets: true,
+    //     enableLiveAutocompletion: true
+    // });
 
-    editor.completers.push(completer);
+    // editor.completers.push(completer);
   },
   methods: {
     getFunctionNames: function(code)
