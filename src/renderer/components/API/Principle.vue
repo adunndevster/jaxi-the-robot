@@ -1,7 +1,7 @@
 <template>
   <div class="principle">
       <h4>{{property}}</h4>
-      <p>{{description}}</p>
+      <p v-html="description" ></p>
       <div class="params">
         <b>Parameters:</b>
         <div v-for="param in paramsArray">{{param}}</div>

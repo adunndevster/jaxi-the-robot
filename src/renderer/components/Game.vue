@@ -67,7 +67,7 @@ import ToolTip from './Game/ToolTip'
 var main = this;
 var jaxi, chopperbot;
 var jaxiInterpreter;
-var codePause = false;
+var _codePause = false;
 var levelComplete = false;
 var levelNum = 1;
 var vue;
@@ -75,7 +75,7 @@ var phaser;
 var game;
 var mainScope;
 var codeIterations = 0;
-const MAX_ITERATIONS = 100000;
+const MAX_ITERATIONS = 25000;
 
 export default {
   name: 'level-select',
@@ -111,45 +111,58 @@ export default {
     var langTools = require('brace/ext/language_tools') //language extension prerequsite...
     
     // data stub:
-    var keywords = [];
-    // [
-    // { name: 'var', description: 'Assign a variable' },
-    // { name: 'if', description: 'If statement' },
-    // { name: 'while', description: 'While statement' },
-    // { name: 'for', description: 'For loop' },
-    // { name: 'forEach', description: 'For-Each loop' },
-    // { name: 'filter', description: 'Array.filter()' },
-    // ];
+    var keywords = [
+    { name: 'var', description: 'var' },
+    { name: 'if', description: 'if' },
+    { name: 'while', description: 'while' },
+    { name: 'for', description: 'for' },
+    { name: 'forEach', description: 'forEach' },
+    { name: 'filter', description: 'filter' },
+    { name: 'run', description: 'run([number])' },
+    { name: 'jump', description: 'jump([number])' },
+    { name: 'climb', description: 'climb' },
+    { name: 'throwSnowball', description: 'throwSnowball(number)' },
+    { name: 'dance', description: 'dance' },
+    { name: 'pickUp', description: 'pickUp' },
+    { name: 'inspect', description: 'inspect' },
+    { name: 'putDown', description: 'putDown([string or array])' },
+    { name: 'isNear', description: 'isNear(string)' },
+    { name: 'isTouching', description: 'isTouching(string)' },
+    { name: 'say', description: 'say(string)' },
+    ];
     
 
     if(this.functions) {
         keywords = keywords.concat(vue.getFunctionNames(this.functions));
     }
-    console.log(keywords);
-
-    // create a completer object with a required callback function:
-    // var completer = {
-    // getCompletions: function(editor, session, pos, prefix, callback) {
-    //     callback(null, keywords.map(function(word) {
-    //     return {
-    //         caption: word.description,
-    //     value: word.name,
-    //     meta: "Keywords"
-    //     };
-    //     }));	
-    // }
-    // };
-    // // finally, bind to langTools:
     
+    //create a completer object with a required callback function:
+    var completer = {
+    getCompletions: function(editor, session, pos, prefix, callback) {
+        callback(null, keywords.map(function(word) {
+        return {
+            caption: word.description,
+        value: word.name,
+        meta: "Keywords"
+        };
+        }));	
+    }
+    };
     
 
-    // editor.setOptions({
-    //     enableBasicAutocompletion: true,
-    //     enableSnippets: true,
-    //     enableLiveAutocompletion: true
-    // });
+    editor.setOptions({
+        enableBasicAutocompletion: false,
+        enableSnippets: false,
+        enableLiveAutocompletion: true
+    });
 
-    // editor.completers.push(completer);
+    editor.completers.push(completer);
+
+    functionsEditor.setOptions({
+        enableBasicAutocompletion: false,
+        enableSnippets: false,
+        enableLiveAutocompletion: true
+    });
   },
   methods: {
     getFunctionNames: function(code)
@@ -400,11 +413,12 @@ function create ()
     this.anims.create({ key: 'jump', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:11, end:20, zeroPad:4}), frameRate: 12, repeat: 0 });
     this.anims.create({ key: 'pickup', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:21, end:31, zeroPad:4}), repeat: 0 });
     this.anims.create({ key: 'wakeup', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:32, end:152, zeroPad:4}), repeat: 0 });
-    this.anims.create({ key: 'teleport', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:153, end:248, zeroPad:4}), repeat: 0 });
+    this.anims.create({ key: 'teleport', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:154, end:248, zeroPad:4}), repeat: 0 });
     this.anims.create({ key: 'die', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:249, end:318, zeroPad:4}), repeat: 0 });
     this.anims.create({ key: 'dance', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:319, end:342, zeroPad:4}), repeat: 0 });
     this.anims.create({ key: 'climb', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:343, end:348, zeroPad:4}), repeat: -1 });
     this.anims.create({ key: 'throw', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:350, end:358, zeroPad:4}), repeat: 0 });
+    this.anims.create({ key: 'mindblown', frames: this.anims.generateFrameNames('jaxi', {prefix:'mcPink_SpriteSheet', start:359, end:375, zeroPad:4}), repeat: 0 });
 
     //teleporter
     this.anims.create({ key: 'all', frames: this.anims.generateFrameNames('g_teleporter'), repeat: -1 });
@@ -463,7 +477,7 @@ function create ()
             jaxi = this.matter.add.sprite(element.x, element.y, element.type, null, 
             {inertia: Infinity,
             shape: { type: 'fromVerts', verts: shapes.jaxiShape }})
-            .setOrigin(.5, .5);
+            .setOrigin(.5, .58);
 
             //jaxi.setTint(0x22eeff);
 
@@ -637,7 +651,7 @@ function create ()
                     {
                         var sayArray = [{character:gator, text:'Did you use "' + appeasementObj.code + '"?'}];
                         vue.say(sayArray);
-                        codePause = true;
+                        setCodeState(true);
                     }
 
                     restartLevel();
@@ -692,7 +706,7 @@ function create ()
                 ease: 'Quad.easeOut',
                 onStart: function(tween)
                 {
-                    codePause = true;
+                    setCodeState(true);
                     jaxiInterpreter = null;
                 },
                 onUpdate: function (tween)
@@ -707,7 +721,7 @@ function create ()
                 },
                 onComplete: function(tween)
                 {
-                    codePause = true;
+                    setCodeState(true);
                 }
                 });
             }
@@ -736,7 +750,7 @@ function create ()
                 ease: 'Quad.easeOut',
                 onStart: function(tween)
                 {
-                    codePause = true;
+                    setCodeState(true);
                     jaxiInterpreter = null;
                 },
                 onUpdate: function (tween)
@@ -751,7 +765,7 @@ function create ()
                 },
                 onComplete: function(tween)
                 {
-                    codePause = true;
+                    setCodeState(true);
                 }
                 });
             }
@@ -942,7 +956,7 @@ function onUpdateEvent()
 //jaxi///////////////////
 function dance()
 {
-    codePause = true;
+    setCodeState(true);
     jaxi.anims.play('dance');
     window.setTimeout(idolJaxi, 1000);
 }
@@ -982,7 +996,7 @@ function inspectWrapper()
 function pickUpWrapper()
 {
     var pickUpReturnVal;
-    codePause = true;
+    setCodeState(true);
     jaxi.anims.play('pickup');
     window.setTimeout(idolJaxi, 600);
 
@@ -1038,7 +1052,7 @@ function pickUpWrapper()
 }
 function putDownWrapper(items)
 {
-    codePause = true;
+    setCodeState(true);
     jaxi.anims.play('pickup');
     var currentActiveCode = vue.activeCode;
     window.setTimeout(function(){
@@ -1102,7 +1116,7 @@ function putDownItem(item)
 }
 function throwSnowballWrapper(angle)
 {
-    codePause = true;
+    setCodeState(true);
     jaxi.anims.play('throw');
     window.setTimeout(idolJaxi, 500);
     var snowball = vue.makeSnowball();
@@ -1229,7 +1243,7 @@ function jump(speed)
         speed = 10 + (10 * ((Math.abs(speed)-1)/Math.abs(speed)));
     }
     if(isNeg) speed = -speed;
-    codePause = true;
+    setCodeState(true);
     jaxi.body.isSleeping = false;
     jaxi.anims.play('jump');
     jaxi.setVelocity(speed/2, -Math.abs(speed));
@@ -1254,7 +1268,7 @@ function run(speed)
     } else {
         speed = (speed > 0) ? 30 + ((speed-1) * 12) : -30 - ((speed+1) * -12);
     }
-    codePause = true;
+    setCodeState(true);
     jaxi.body.isSleeping = false;
     jaxi.anims.play('run');
     jaxi.setVelocity(speed, 0);
@@ -1267,7 +1281,7 @@ function animateBeingStuck()
     jaxi.setVelocity(30,0);
     jaxi.thrustBack(.001)
     jaxi.anims.play('run');
-    codePause = true;
+    setCodeState(true);
     phaser.tweens.add({
         targets: jaxi,
         x: jaxi.tar.x,
@@ -1315,7 +1329,7 @@ function climb()
         {
             jaxi.stickCount = 0;
             var isUp = rect.y < jaxiRect.y;
-            codePause = true;
+            setCodeState(true);
             jaxi.anims.play('climb');
             jaxi.setFlipX(false);
             phaser.tweens.add({
@@ -1331,7 +1345,7 @@ function climb()
                 duration: obj.height * 3,
                 //onUpdate: function() { jaxi.setPosition(pos.x, jaxi.y); },
                 onComplete: function() {
-                    codePause = false;
+                    _codePause = false;
                     jaxi.thrustBack(.001);
                     jaxi.anims.play('idol');
                 }
@@ -1403,7 +1417,7 @@ function isNearWrapper(item)
 }
 function say(text)
 {
-    codePause = true;
+    setCodeState(true);
     
     var response = doAppeasementChecks(text);
     // var gatorsArray = vue.interactivesArray.filter(obj => {
@@ -1480,7 +1494,7 @@ function gator_flip(gator, flip)
 //     //     speed = (speed > 0) ? 30 + ((speed-1) * 12) : -30 - ((speed+1) * -12);
 //     // }
 //     //speed *= 200;
-//     codePause = true;
+//     setCodeState(true);
 //     jaxi.body.isSleeping = false;
 //     jaxi.anims.play('run');
 //     jaxi.setVelocity(30 * sign, 0);
@@ -1524,7 +1538,7 @@ function finishLevel()
     jaxi.setFriction(1000);
     jaxi.setVelocity(0, 0);
     saveState();
-    levelComplete = codePause = true;
+    levelComplete = setCodeState(true);
     jaxi.anims.play('teleport');
     window.setTimeout(function(){
         vue.fadeOut();
@@ -1542,7 +1556,7 @@ function restartLevel()
     jaxi.setFriction(1000);
     jaxi.setVelocity(0, 0);
     saveState();
-    levelComplete = codePause = true;
+    levelComplete = setCodeState(true);
     jaxi.anims.play('die');
     window.setTimeout(function(){
         vue.fadeOut();
@@ -1560,17 +1574,17 @@ function saveState()
     localStorage.setItem('jaxiFunctions', vue.functions);
 }
 
+function setCodeState(codePause)
+{   
+    _codePause = codePause;
+    codeIterations = 0;
+    return _codePause;
+}
+
 var range;
 function nextStep() {
 
-    if(codeIterations > MAX_ITERATIONS)
-    {
-        alert("Too many iterations");
-        restartLevel();
-        return;
-    }
-
-    codePause = false;
+    _codePause = false;
     do{
         try{
             var activeCode = getActiveCode();
@@ -1586,7 +1600,18 @@ function nextStep() {
             // console.clear();
             // console.log(activeCode);
             var hasMoreCode = jaxiInterpreter.step();
+            console.log(codeIterations)
+            if(codeIterations > MAX_ITERATIONS)
+            {
+                setCodeState(true);
+                jaxi.anims.play("mindblown")
+                window.setTimeout(function(){
+                    restartLevel();
+                }, 1000);
+                return;
+            }
             codeIterations++;
+            
         } catch(error)
         {
             console.log(error);
@@ -1598,7 +1623,7 @@ function nextStep() {
                 restartLevel();
             }
         }
-    } while(hasMoreCode && !codePause);
+    } while(hasMoreCode && !_codePause);
 }
 function getActiveCode()
 {
