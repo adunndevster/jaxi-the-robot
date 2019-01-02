@@ -244,7 +244,7 @@ export default {
             sprite.anims.pause();
         }
         
-        vue.setupToolTip(sprite, 'id: ' + sprite.vals.id + '<br>color: ' + sprite.vals.color + '<br>petals: ' + sprite.vals.petals );
+        vue.setupToolTip(sprite, 'flower<br>id: ' + sprite.vals.id + '<br>color: ' + sprite.vals.color + '<br>petals: ' + sprite.vals.petals );
         vue.totalFlowers++;
         vue.interactivesArray.push(sprite);
     },
@@ -534,6 +534,7 @@ function create ()
                                   }, 1000);
             }
             vue.makeFLower(element, sprite);
+            vue.interactivesArray.push(sprite);
             vue.setupToolTip(sprite, sprite.label);
         }
         else if(element.type.indexOf('g_flower') != -1)
@@ -553,6 +554,7 @@ function create ()
             vue.setupToolTip(sprite, sprite.label);
             vue.interactivesArray.push(sprite);
             vue.gatorsArray.push(sprite);
+
         }
         else if(element.type.indexOf('g_chopperbot') != -1)
         {
@@ -617,6 +619,17 @@ function create ()
             if(((bodyA.gameObject != null && bodyA.gameObject.isTeleporter) || 
             (bodyB.gameObject != null && bodyB.gameObject.isTeleporter)))
             {
+                var teleporter = (bodyA.gameObject.isTeleporter) ? bodyA.gameObject : bodyB.gameObject;
+                phaser.tweens.add({
+                    targets: jaxi,
+                    x: teleporter.x,
+                    y: teleporter.y,
+                    ease: 'Quad.easeInOut',
+                    duration: 400,
+                    onComplete: function() {
+                        jaxi.setStatic(true);
+                    }
+                });
                 finishLevel();
             }
 
@@ -883,6 +896,14 @@ function onUpdateEvent()
     },
     setupToolTip(sprite, toolTipText)
     {
+        if(sprite.toolTip) sprite.toolTip.destroy();
+
+        if(toolTipText == null)
+        {
+            toolTipText = sprite.text;
+            sprite = sprite.sprite;
+        }
+
         sprite.setInteractive();
         sprite.on('pointerover', function () {
             sprite.toolTip = vue.showToolTip([{character:sprite, text:toolTipText}]);
@@ -891,8 +912,17 @@ function onUpdateEvent()
             sprite.toolTip.destroy();
         });
     },
+    setupToolTips(items)
+    {
+        items.forEach(item => {
+            vue.setupToolTip(item.sprite, item.text);
+        });
+
+        vue.nextAnimationStep();
+    },
     runLevelAnimation: function()
     {   
+        vue.animationStep = 0;
         if(vue.animationArray != []) this.nextAnimationStep();
     },
     nextAnimationStep: function()
@@ -900,8 +930,8 @@ function onUpdateEvent()
         if(vue.animationStep < vue.animationArray.length)
         {
             var animProps = vue.animationArray[vue.animationStep];
-            animProps.func(animProps.params);
             vue.animationStep++;
+            animProps.func(animProps.params);
             this.runCodeDisabled = vue.animationStep < vue.animationArray.length;
         }
     },
@@ -1020,7 +1050,7 @@ function pickUpWrapper()
             if(iRect.x > 0 && 
             iRect.y > 0)
             {
-                jaxi.setFlipX(jaxiRect.x + 20 > iRect.x);
+                jaxi.setFlipX(jaxiRect.x + 50 > iRect.x);
 
                 phaser.tweens.add({
                     targets: flower,
@@ -1053,6 +1083,7 @@ function pickUpWrapper()
 function putDownWrapper(items)
 {
     setCodeState(true);
+
     jaxi.anims.play('pickup');
     var currentActiveCode = vue.activeCode;
     window.setTimeout(function(){
@@ -1087,6 +1118,7 @@ function putDownWrapper(items)
     var item = items;
 
     putDownItem(item);
+
 
 }
 function putDownItem(item)
@@ -1199,9 +1231,14 @@ function doAppeasementChecks(appeasementValue, activeCode)
                 isGatorHappy = true;
                 gator.isAppeased = true;
             } else {
-                if(appeasementObj.code && gator.isNearJaxi)
+                if(gator.isNearJaxi)
                 {
-                    gator.didStopJaxi = true;
+                    gator.isAppeased = false;
+                    isGatorHappy = false;
+                    // setCodeState(true);
+                    // gator.anims.delayedPlay(1100, 'gator_laugh');
+                    // restartLevel();
+
                 }
                 
             }
@@ -1383,10 +1420,12 @@ function isTouchingWrapper(item)
 }
 function isNearWrapper(item)
 {
+
+    var boundary = (item == "gatorbot") ? 300 : 80;
     let isNear = "false";
-    var jaxiRect = new Phaser.Geom.Rectangle(jaxi.getBounds().x - 20, 
+    var jaxiRect = new Phaser.Geom.Rectangle(jaxi.getBounds().x - boundary/2, 
                                                       jaxi.getBounds().y, 
-                                                      jaxi.getBounds().width + 40, 
+                                                      jaxi.getBounds().width + boundary, 
                                                       jaxi.getBounds().height);
 
     vue.interactivesArray.forEach(obj => {

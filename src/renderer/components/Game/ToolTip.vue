@@ -37,7 +37,12 @@
         var hRatio = gameCanvas.offsetHeight / this.game.config.height
         var charX = obj.character.x * wRatio
         var charY = obj.character.y * hRatio
-        var offsetX = (charX < this.game.config.width / 2) ? -90 : 30
+
+        var midX = gameCanvas.offsetWidth / 2;
+        var midY = gameCanvas.offsetHeight / 2;
+        var offsetX = (charX > midX) ? -toolTip.offsetWidth - 30 : 30;
+        var offsetY = (charY < midY) ? toolTip.offsetHeight - 10 : 0;
+
         var toolTipX = gameCanvasRect.left + charX + offsetX
         var toolTipY = gameCanvasRect.top + charY - (obj.character.height / 4)
 
@@ -46,7 +51,7 @@
       },
       destroy () {
         var toolTip = document.getElementById('toolTip')
-        toolTip.parentElement.removeChild(toolTip)
+        if(toolTip) toolTip.parentElement.removeChild(toolTip)
       }
     }
   }
