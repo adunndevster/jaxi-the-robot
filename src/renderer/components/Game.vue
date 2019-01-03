@@ -1177,9 +1177,9 @@ function doAppeasementChecks(appeasementValue, activeCode)
         var isGatorHappy = false;
         if(!gator.isAppeased && gator.appeasement == "flowers")
         {
-            var gatorRect = new Phaser.Geom.Rectangle(gator.getBounds().x - 200, 
+            var gatorRect = new Phaser.Geom.Rectangle(gator.getBounds().x - 250, 
                                                       gator.getBounds().y, 
-                                                      gator.getBounds().width + 400, 
+                                                      gator.getBounds().width + 500, 
                                                       gator.getBounds().height);
             var flowerCount = 0;
             var appeasementObj = JSON.parse(gator.appeasementValue);
