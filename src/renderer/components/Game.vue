@@ -390,6 +390,8 @@ function preload ()
     this.load.image("g_target", require("../assets/toybox/TargetSprites.png"));
     this.load.atlas("g_fireball", require("../assets/toybox/FireballSprites.png"), require("../assets/toybox/FireballSprites.json"));
     this.load.image("g_fireball", require("../assets/toybox/FireballSprites.png"));
+    this.load.atlas("g_motherboard", require("../assets/toybox/MotherboardSprites.png"), require("../assets/toybox/MotherboardSprites.json"));
+    this.load.image("g_motherboard", require("../assets/toybox/MotherboardSprites.png"));
 
     //scenery
     var sceneryFiles = ['g_sc_bluebotbuilding.png', 'g_sc_junk_silhouette1.png', 'g_sc_rock1.png', 'g_sc_rocks.png', 'g_sc_trashclump1.png',
@@ -452,7 +454,12 @@ function create ()
     //fireball
     this.anims.create({ key: 'fireball_idol', frames: this.anims.generateFrameNames('g_fireball', {prefix:'Fireball_SpriteSheet', start:1, end:15, zeroPad:4}), repeat: -1 });
     this.anims.create({ key: 'fireball_break', frames: this.anims.generateFrameNames('g_fireball', {prefix:'Fireball_SpriteSheet', start:16, end:22, zeroPad:4}), repeat: 0 });
-    
+
+    //motherboard
+    this.anims.create({ key: 'motherboard_idol', frames: this.anims.generateFrameNames('g_motherboard', {prefix:'mcMotherboard_Spritesheet', start:0, end:23, zeroPad:4}), repeat: -1 });
+    this.anims.create({ key: 'motherboard_up', frames: this.anims.generateFrameNames('g_motherboard', {prefix:'mcMotherboard_Spritesheet', start:24, end:47, zeroPad:4}), repeat: 0 });
+    this.anims.create({ key: 'motherboard_up_idol', frames: this.anims.generateFrameNames('g_motherboard', {prefix:'mcMotherboard_Spritesheet', start:48, end:69, zeroPad:4}), repeat: -1 });
+    this.anims.create({ key: 'motherboard_down', frames: this.anims.generateFrameNames('g_motherboard', {prefix:'mcMotherboard_Spritesheet', start:70, end:94, zeroPad:4}), repeat: 0 });
 
     levelData.level.elements.forEach(element => {
         //console.log(element.type);
@@ -511,6 +518,22 @@ function create ()
         {
             vue.makeFireball(element, false);
         }
+        else if(element.type.indexOf('g_motherboard') != -1)
+        {
+            var sprite = this.matter.add.sprite(element.x, element.y, element.type)
+                .setStatic(true)
+                .setOrigin(.5, .63);
+            sprite.anims.play('motherboard_idol');
+            sprite.setSensor(true);
+            sprite.isMotherboard = true;
+            sprite.label = 'motherboard';
+            vue.setupToolTip(sprite, sprite.label);
+            if(element.id != "") vue[element.id] = sprite; //(eval("vue." + element.id + " = sprite"));
+            sprite.appeasement = element.appeasement; //"words"||"flowers"
+            sprite.appeasementValue = element.appeasementValue;
+            vue.interactivesArray.push(sprite);
+            vue.motherboard = sprite;
+        }
         else if(element.type.indexOf('g_tar') != -1)
         {
             var sprite = this.matter.add.sprite(element.x, element.y, element.type).setStatic(true);
@@ -548,7 +571,7 @@ function create ()
             sprite.isGator = true;
             sprite.label = 'gatorbot';
             sprite.anims.play('gator_idol');
-            if(element.id != "") (eval("vue." + element.id + " = sprite"));
+            if(element.id != "") vue[element.id] = sprite; //(eval("vue." + element.id + " = sprite"));
             sprite.appeasement = element.appeasement; //"words"||"flowers"
             sprite.appeasementValue = element.appeasementValue;
             vue.setupToolTip(sprite, sprite.label);
@@ -669,6 +692,18 @@ function create ()
 
                     restartLevel();
                     
+                }
+                
+            }
+
+            //motherboard
+            if(((bodyA.gameObject != null && bodyA.gameObject.isMotherboard) || 
+            (bodyB.gameObject != null && bodyB.gameObject.isMotherboard)))
+            {
+                var motherboard = (bodyA.gameObject.isMotherboard) ? bodyA.gameObject : bodyB.gameObject;
+                if(motherboard.isAppeased != true)
+                {
+                   restartLevel(); 
                 }
                 
             }
@@ -1191,6 +1226,7 @@ function doAppeasementChecks(appeasementValue, activeCode)
                 
                  if((appeasementObj.petals && flower.vals.petals == appeasementObj.petals) ||
                     (appeasementObj.color && flower.vals.color == appeasementObj.color) ||
+                    (appeasementObj.petalsandcolor && flower.vals.petals == appeasementObj.petalsandcolor.petals && flower.vals.color == appeasementObj.petalsandcolor.color) ||
                     (appeasementObj.minpetals) ||
                     appeasementObj.count ||
                     appeasementObj.code)
@@ -1255,6 +1291,22 @@ function doAppeasementChecks(appeasementValue, activeCode)
             return response;
         }
     });
+
+
+    //motherboard
+    var isMBHappy = false;
+    if(vue.motherboard.appeasement == "words" && vue.motherboard.appeasementValue == appeasementValue)
+    {
+        isMBHappy = true;
+    }
+    if(isMBHappy)
+    {
+        vue.motherboard.anims.play("motherboard_up");
+        vue.motherboard.anims.delayedPlay(1000, 'motherboard_up_idol');
+        vue.motherboard.isAppeased = true;
+        response = {character:vue.motherboard, text:"Jaxi, I have watched you stand up to each programming challenge time and again. I was wrong to make only blue robots. You can do everything they can do and more."};
+        return response;
+    }
     
 
     return response;

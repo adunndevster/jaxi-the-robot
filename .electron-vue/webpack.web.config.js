@@ -50,7 +50,7 @@ let webConfig = {
         use: {
           loader: 'vue-loader',
           options: {
-            extractCSS: true,
+            extractCSS: false,
             loaders: {
               sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax=1',
               scss: 'vue-style-loader!css-loader!sass-loader'
@@ -90,7 +90,7 @@ let webConfig = {
         removeAttributeQuotes: true,
         removeComments: true
       },
-      nodeModules: false
+      nodeModules: true
     }),
     new webpack.DefinePlugin({
       'process.env.IS_WEB': 'true'
@@ -131,7 +131,7 @@ if (process.env.NODE_ENV === 'production') {
       'process.env.NODE_ENV': '"production"'
     }),
     new webpack.LoaderOptionsPlugin({
-      minimize: true
+      minimize: false
     })
   )
 }

@@ -2,7 +2,10 @@ var AnimationGetter = {
 
     get: function (vue)
     {
-        return [{func:vue.say, params:[{character:vue.gator, text:'How about the 33rd Fibonocci number?'}
+        return [
+                {func:vue.setupToolTips, params:[{sprite:vue.gator, text:"gatorbot<br>Wants to know what the 34th Fibonacci number is."}]},
+                
+                {func:vue.say, params:[{character:vue.gator, text:'How about the 34th Fibonocci number?'}
         ]},
                                        
                 {func:vue.chopperbot_flyAway}]
