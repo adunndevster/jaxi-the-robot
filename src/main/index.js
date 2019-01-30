@@ -50,20 +50,20 @@ app.on('activate', () => {
 })
 
 // debug stuffs.
-if(process.env.NODE_ENV !== 'development')
-{
-  require('electron-debug')({ showDevTools: true })
-  require('electron').app.on('ready', () => {
-    let installExtension = require('electron-devtools-installer')
-    installExtension.default(installExtension.VUEJS_DEVTOOLS)
-      .then(() => {})
-      .catch(err => {
-        alert('Unable to install `vue-devtools`: \n', err)
-      })
+// if(process.env.NODE_ENV !== 'development')
+// {
+//   require('electron-debug')({ showDevTools: true })
+//   require('electron').app.on('ready', () => {
+//     let installExtension = require('electron-devtools-installer')
+//     installExtension.default(installExtension.VUEJS_DEVTOOLS)
+//       .then(() => {})
+//       .catch(err => {
+//         alert('Unable to install `vue-devtools`: \n', err)
+//       })
 
-    mainWindow.openDevTools()
-  })
-}
+//     mainWindow.openDevTools()
+//   })
+// }
 
 
 /**

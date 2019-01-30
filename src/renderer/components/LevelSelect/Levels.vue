@@ -21,12 +21,16 @@ export default {
   props: ['startLevel'],
   methods: {
     gotoLevel: function (levelNum) {
-      this.$parent.$emit('fadeFunc', true)
       
-      window.setTimeout(function () {
+      let parent = this.$parent
+
+      parent.$emit('fadeFunc', true)
+
+      setTimeout(function () {
         router.push({ name: 'Game', params: { level: (levelNum)}})
-        location.reload() // TODO: find a way to clear the memory space, and smoothly transition between pages... Why? So we can stick to the SPA vue paradigm.
+        parent.$emit('fadeFunc', false)
       }, 650)
+        
     }
   }
   // data () {
@@ -42,7 +46,9 @@ export default {
   color: white;
   z-index: 1;
   top:100px;
-  left: 210px;
+  margin: 0 auto;
+  position: relative;
+  padding-left: 160px;
 }
 .zone .levels div{
   position: relative;
@@ -58,7 +64,9 @@ export default {
   text-align: center;
   font-size: 72px;
   padding-top: 20px;
-  margin: 50px;
+  margin: 1vw;
+  margin-bottom: 80px;
+  /* margin: 20px; */
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.8);
   -moz-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.8);
   -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.8);

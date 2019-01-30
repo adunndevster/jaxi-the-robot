@@ -5,7 +5,7 @@
 
         </div>
         <br/>
-        <a href="#" v-on:click="nextText()">Next ></a>        
+        <a id="btnSpeechNext" href="#" v-on:click="nextText()">Next ></a>        
       </div>
       <div id="bubbleTail"></div>
   </div>
@@ -28,6 +28,8 @@
         this.currentPos = 0
         this.game = game
         this.nextText()
+        document.getElementById('btnSpeechNext').focus()
+
       },
       nextText () {
         var bubble = document.getElementById('speechBubble')
