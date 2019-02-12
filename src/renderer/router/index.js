@@ -11,6 +11,11 @@ export default new Router({
       component: require('@/components/LandingPage').default
     },
     {
+      path: '/intro',
+      name: 'intro',
+      component: require('@/components/Intro').default
+    },
+    {
       path: '/level-select',
       name: 'level-select',
       component: require('@/components/LevelSelect').default

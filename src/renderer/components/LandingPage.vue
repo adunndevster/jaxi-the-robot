@@ -5,6 +5,13 @@
       <source src="~@/assets/title.mp4" type="video/mp4">
   </video>
   </router-link>
+
+  <div>
+    <router-link to="/intro" class="intro-link">
+      Watch Intro
+    </router-link>
+  </div>
+
 </div>
 </template>
 
@@ -15,6 +22,14 @@
   export default {
     name: 'landing-page',
     components: { SystemInformation },
+    beforeCreate() {
+      var watchedIntro = localStorage.getItem('watchedIntro');
+      if(!watchedIntro)
+      {
+        router.push('intro')
+      }
+      
+    },
     mounted () {
       window.addEventListener('keypress', function () {
         router.push('level-select')
@@ -52,9 +67,24 @@
   }
   
 #video{
-  position: absolute  ;
+  position: absolute;
   top: 50%;
   transform: translateY(-50%);
+}
+
+.intro-link
+{
+  position: absolute;
+  top: 14px;
+  right: 40px;
+  font-family: Righteous;
+  font-size: 28px;
+  color: white !important;
+  text-decoration: none !important;
+  text-shadow: 1px 1px 4px black;
+}
+.intro-link :hover{
+  color: #CFC777 !important;
 }
 
 </style>

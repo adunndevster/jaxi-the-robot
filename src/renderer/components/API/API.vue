@@ -76,8 +76,8 @@
                        />
 
             <principle id="api_throwsnowball" property="throwSnowball(angle)"
-                       :paramsArray="['angle: A number that tells Jaxi which direction to throw a snowball.']"
-                       description="Makes Jaxi throw a snowball. Snowbells are excellent for putting out fires."
+                       :paramsArray="['angle: A number between 0 and 360 that tells Jaxi which direction to throw a snowball.']"
+                       description="Makes Jaxi throw a snowball. Snowballs are excellent for putting out fires."
                        />
 
           </div>
