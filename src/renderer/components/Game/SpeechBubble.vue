@@ -18,7 +18,8 @@
       return {
         currentPos: 0,
         dialogueArray: [],
-        game: null
+        game: null,
+        nextButtonAction: null
       }
     },
     methods:
@@ -35,13 +36,16 @@
         var bubble = document.getElementById('speechBubble')
         var bubbleText = document.getElementById('bubbleText')
 
+        if(this.nextButtonAction != null) this.nextButtonAction();
+
+        var obj = this.dialogueArray[this.currentPos]
+        if(obj && obj.nextButtonAction) this.nextButtonAction = obj.nextButtonAction;
+
         if (this.currentPos == this.dialogueArray.length) {
           bubble.parentElement.removeChild(bubble)
           this.$emit('nextAnim')
           return
         }
-
-        var obj = this.dialogueArray[this.currentPos]
 
         bubbleText.innerHTML = obj.text
   

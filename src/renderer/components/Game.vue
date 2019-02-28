@@ -403,6 +403,26 @@ function preload ()
         this.load.image(file.split('.')[0], require('../assets/toybox/scenery/' + file));
     });
 
+    //audio
+    this.load.audio('throw_snowball', [
+        require('../assets/toybox/audio/jaxi_throw.mp3')
+    ]);
+    this.load.audio('teleport', [
+        require('../assets/toybox/audio/jaxi_teleport.mp3')
+    ]);
+    this.load.audio('tink', [
+        require('../assets/toybox/audio/tink.mp3')
+    ]);
+    this.load.audio('jaxi_steps', [
+        require('../assets/toybox/audio/jaxi_steps.mp3')
+    ]);
+    this.load.audio('jaxi_jump', [
+        require('../assets/toybox/audio/jaxi_jump.mp3')
+    ]);
+    this.load.audio('fizzle', [
+        require('../assets/toybox/audio/fizzle.mp3')
+    ]);
+
 }
 
 function create ()
@@ -783,6 +803,7 @@ function create ()
             var target = (bodyA.gameObject && bodyA.gameObject.isFireball) ? bodyA.gameObject : bodyB.gameObject;
 
             target.anims.play('fireball_break');
+            phaser.sound.add('fizzle', {volume:.08}).play();
 
             target.setCollidesWith([])
 
@@ -1208,6 +1229,8 @@ function throwSnowball(angle)
     console.log("angle:", velX, velY);
 
     snowball.setVelocity(velX, velY);
+
+    phaser.sound.add('throw_snowball').play();
 }
 function doAppeasementChecks(appeasementValue, activeCode)
 {
@@ -1303,16 +1326,48 @@ function doAppeasementChecks(appeasementValue, activeCode)
 
     //motherboard
     var isMBHappy = false;
-    if(vue.motherboard && vue.motherboard.appeasement == "words" && vue.motherboard.appeasementValue == appeasementValue)
+    if(vue.motherboard && vue.motherboard.appeasement == "petals")
     {
-        isMBHappy = true;
+        var mbRect = new Phaser.Geom.Rectangle(vue.motherboard.getBounds().x - 250, 
+                                                      vue.motherboard.getBounds().y, 
+                                                      vue.motherboard.getBounds().width + 500, 
+                                                      vue.motherboard.getBounds().height);
+        var flowerCount = 0;
+        var petals = 0;
+        console.log('flower check...');
+        flowersArray.forEach(flower => {
+            
+            var flowerRect = flower.getBounds();
+            var iRect;
+
+            iRect = Phaser.Geom.Intersects.GetRectangleIntersection(mbRect, flowerRect);
+
+            if(iRect && iRect.x > 0 && iRect.y > 0)
+            {
+                petals += flower.vals.petals;
+            }
+            
+        });
+
+        isMBHappy = petals % 5 == 0 && petals > 0;
     }
     if(isMBHappy)
     {
         vue.motherboard.anims.play("motherboard_up");
         vue.motherboard.anims.delayedPlay(1000, 'motherboard_up_idol');
         vue.motherboard.isAppeased = true;
-        response = {character:vue.motherboard, text:"Jaxi, I have watched you stand up to each programming challenge time and again. I was wrong to make only blue robots. You can do everything they can do and more."};
+        var nextButtonAction = function()
+        {
+            vue.fadeOut();
+            window.setTimeout(function (){
+                router.push({ name: 'end'})
+                location.reload(); //TODO: find a way to clear the memory space, and smoothly transition between pages... Why? So we can stick to the SPA vue paradigm.
+            }, 650);
+        }
+        response = {character:vue.motherboard, 
+                    text:"Jaxi, I have watched you stand up to each programming challenge time and again. I was wrong to make only blue robots. You can do everything they can do and more.",
+                    nextButtonAction:nextButtonAction};
+        vue.say([response]);
         return response;
     }
     
@@ -1343,6 +1398,7 @@ function jump(speed)
     setCodeState(true);
     jaxi.body.isSleeping = false;
     jaxi.anims.play('jump');
+    phaser.sound.add('jaxi_jump', {volume:.4}).play();
     jaxi.setVelocity(speed/2, -Math.abs(speed));
 
     jaxi.setFlipX(speed <= 0);
@@ -1368,6 +1424,7 @@ function run(speed)
     setCodeState(true);
     jaxi.body.isSleeping = false;
     jaxi.anims.play('run');
+    phaser.sound.add('jaxi_steps').play();
     jaxi.setVelocity(speed, 0);
 
     jaxi.setFlipX(speed <= 0);
@@ -1429,6 +1486,11 @@ function climb()
             setCodeState(true);
             jaxi.anims.play('climb');
             jaxi.setFlipX(false);
+            var sound = phaser.sound.add('tink', {
+                                    volume: .08,
+                                    loop: true
+                                    });
+            sound.play();
             phaser.tweens.add({
                 targets: jaxi,
                 x: obj.x - obj.width/2,
@@ -1445,8 +1507,10 @@ function climb()
                     _codePause = false;
                     jaxi.thrustBack(.001);
                     jaxi.anims.play('idol');
+                    sound.stop();
                 }
             });
+            
             return;
         }
     });
@@ -1647,24 +1711,33 @@ function finishLevel()
         }, 650);
         
     }, 2000);   
+    phaser.sound.add('teleport').play();
 }
 
 function restartLevel()
 {
-    jaxi.setBounce(0);
-    jaxi.setFriction(1000);
-    jaxi.setVelocity(0, 0);
-    saveState();
-    levelComplete = setCodeState(true);
-    jaxi.anims.play('die');
-    window.setTimeout(function(){
-        vue.fadeOut();
-        window.setTimeout(function (){
-            router.push({ name: 'Game', params: { level: (levelNum)}})
-            location.reload(); //TODO: find a way to clear the memory space, and smoothly transition between pages... Why? So we can stick to the SPA vue paradigm.
-        }, 650);
-        
-    }, 2000);   
+    setTimeout(function(){
+        if(vue.motherboard && vue.motherboard.isAppeased)
+        {
+            return;
+        }
+
+        jaxi.setBounce(0);
+        jaxi.setFriction(1000);
+        jaxi.setVelocity(0, 0);
+        saveState();
+        levelComplete = setCodeState(true);
+        jaxi.anims.play('die');
+        window.setTimeout(function(){
+            vue.fadeOut();
+            window.setTimeout(function (){
+                router.push({ name: 'Game', params: { level: (levelNum)}})
+                location.reload(); //TODO: find a way to clear the memory space, and smoothly transition between pages... Why? So we can stick to the SPA vue paradigm.
+            }, 650);
+            
+        }, 2000);   
+    }, 200)
+    
 }
 
 function saveState()
