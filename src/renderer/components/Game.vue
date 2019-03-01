@@ -422,6 +422,9 @@ function preload ()
     this.load.audio('fizzle', [
         require('../assets/toybox/audio/fizzle.mp3')
     ]);
+    this.load.audio('pop', [
+        require('../assets/toybox/audio/pop.ogg')
+    ]);
 
 }
 
@@ -1129,6 +1132,13 @@ function pickUpWrapper()
                 pickUpReturnVal = flower.vals;
 
                 jaxi.bag.push(flower);
+
+                var sound = phaser.sound.add('pop', {
+                                    volume: .3,
+                                    delay:1000
+                                    });
+                sound.play();
+                                
                 
             }
         }
@@ -1487,7 +1497,7 @@ function climb()
             jaxi.anims.play('climb');
             jaxi.setFlipX(false);
             var sound = phaser.sound.add('tink', {
-                                    volume: .08,
+                                    volume: .05,
                                     loop: true
                                     });
             sound.play();
