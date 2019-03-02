@@ -97,7 +97,11 @@ export default {
             interactivesArray: [],
             gatorsArray: [],
             updateEvent: null,
-            totalFlowers: 0
+            totalFlowers: 0,
+            introSongs: ['intro_patakasworld', 'intro_puzzle', 'intro_swans', 'intro_Tbone'],
+            playSongs: ['aboutnothing', 'abstractus', 'Androids', 'defense', 'Ipsi', 'monkey', 'offlimits', 
+                     'pimboy', 'pimboypocket', 'Platformer2', 'ShanghaiAction1', 'starcommander', 'techloop']
+
         }
     },
   mounted() {
@@ -426,6 +430,18 @@ function preload ()
         require('../assets/toybox/audio/pop.ogg')
     ]);
 
+
+    let randIntro = vue.introSongs[Math.floor(Math.random() * vue.introSongs.length)]
+    this.load.audio('introSong', [
+        require('../assets/toybox/audio/music/' + randIntro + '.mp3')
+    ]);
+
+    let randSong = vue.playSongs[Math.floor(Math.random() * vue.playSongs.length)]
+    this.load.audio('playSong', [
+        require('../assets/toybox/audio/music/' + randSong + '.mp3')
+    ]);
+
+    
 }
 
 function create ()
@@ -637,6 +653,12 @@ function create ()
         }
     });
 
+    var playIntro = Math.random(.5) > .5;
+    if(playIntro)
+    {
+        phaser.sound.add('introSong', {volume:.2}).play();
+    }
+
     //scramble flowers
     vue.scrambleFlowers();
 
@@ -806,7 +828,7 @@ function create ()
             var target = (bodyA.gameObject && bodyA.gameObject.isFireball) ? bodyA.gameObject : bodyB.gameObject;
 
             target.anims.play('fireball_break');
-            phaser.sound.add('fizzle', {volume:.08}).play();
+            phaser.sound.add('fizzle', {volume:.1}).play();
 
             target.setCollidesWith([])
 
@@ -954,6 +976,9 @@ function onUpdateEvent()
         
         nextStep();
         console.log(jaxiInterpreter);
+
+       
+       if(this.code.length > 100) phaser.sound.add('playSong', {loop:true, volume: .15}).play();
         
     },
     setupToolTip(sprite, toolTipText)
@@ -1726,7 +1751,7 @@ function finishLevel()
 
 function restartLevel()
 {
-    setTimeout(function(){
+    window.setTimeout(function(){
         if(vue.motherboard && vue.motherboard.isAppeased)
         {
             return;
