@@ -1,8 +1,8 @@
 {
-  "name": "jaxi-electron-vue",
-  "version": "0.0.0",
+  "name": "jaxi-the-robot",
+  "version": "1.1.1",
   "author": "Adam Dunn",
-  "description": "Jaxi the Robot",
+  "description": "jaxi-the-robot",
   "license": null,
   "main": "./dist/electron/main.js",
   "scripts": {
@@ -22,9 +22,10 @@
     "unit": "karma start test/unit/karma.conf.js",
     "postinstall": "npm run lint:fix"
   },
+  "repository": "https://github.com/adunndevster/jaxi-the-robot",
   "build": {
-    "productName": "jaxi-electron-vue",
-    "appId": "org.simulatedgreg.electron-vue",
+    "productName": "jaxi-the-robot",
+    "appId": "com.jaxitherobot.game",
     "directories": {
       "output": "build"
     },
@@ -62,12 +63,14 @@
     "axios": "^0.16.1",
     "bootstrap": "^4.1.3",
     "bootstrap-vue": "^2.0.0-rc.11",
+    "electron-updater": "^4.0.6",
     "jquery": "^3.3.1",
     "js-interpreter": "^1.4.6",
     "node-sass": "^4.9.0",
     "phaser": "^3.10.1",
     "sass-loader": "^7.0.1",
     "smoothscroll-polyfill": "^0.4.3",
+    "update-electron-app": "^1.3.0",
     "vue": "^2.3.3",
     "vue-electron": "^1.0.6",
     "vue-router": "^2.5.3",

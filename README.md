@@ -1,6 +1,6 @@
-# jaxi-electron-vue
+# jaxi-the-robot
 
-> Jaxi the Robot
+> jaxi-the-robot
 
 #### Build Setup
 

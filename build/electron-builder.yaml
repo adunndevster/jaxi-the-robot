@@ -1,8 +1,8 @@
 directories:
   output: build
   buildResources: build
-productName: jaxi-electron-vue
-appId: org.simulatedgreg.electron-vue
+productName: jaxi-the-robot
+appId: com.jaxitherobot.game
 files:
   - dist/electron/**/*
   - static

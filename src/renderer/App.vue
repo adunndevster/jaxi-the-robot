@@ -14,7 +14,7 @@
 
 <script>
   export default {
-    name: 'jaxi-electron-vue',
+    name: 'jaxi-the-robot',
     data () {
       return {
         isShowing: true
