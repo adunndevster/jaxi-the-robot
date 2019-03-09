@@ -1,6 +1,7 @@
 'use strict'
 
 import { app, BrowserWindow } from 'electron'
+var menu = require("electron").Menu;
 
 /**
  * Set `__static` path to static files in production
@@ -33,6 +34,27 @@ function createWindow () {
   mainWindow.on('closed', () => {
     mainWindow = null
   })
+
+  var template = [{
+    label: "Application",
+    submenu: [
+        { label: "About Application", selector: "orderFrontStandardAboutPanel:" },
+        { type: "separator" },
+        { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
+    ]}, {
+    label: "Edit",
+    submenu: [
+        { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+        { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+        { type: "separator" },
+        { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+        { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+        { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+        { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
+    ]}
+];
+
+menu.setApplicationMenu(menu.buildFromTemplate(template));
 }
 
 app.on('ready', createWindow)
@@ -79,7 +101,6 @@ app.on('activate', () => {
 import { autoUpdater } from 'electron-updater'
 
 autoUpdater.on('update-downloaded', () => {
-  alert('a')
   autoUpdater.quitAndInstall()
 })
 
