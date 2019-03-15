@@ -1,7 +1,7 @@
 <template>
 <div>
   <router-link to="/level-select">
-    <video id="video" width="100%" height="100%" autoplay loop>
+    <video id="video" width="100%" height="100%" loop autoplay>
       <source src="~@/assets/title.mp4" type="video/mp4">
   </video>
   </router-link>

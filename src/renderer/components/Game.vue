@@ -24,8 +24,13 @@
 
         </div>
         <div class="action-buttons">
-            <button v-on:click="runCode" value="Run Code" class="btn btn-dark float-right btn-run-code" :disabled="runCodeDisabled">Run Code</button>
+            <button v-on:click="runCode" class="btn btn-dark float-right" 
+                    :class="{'btn-run-code':(!runCodeDisabled || levelStart), 'btn-retry':runCodeDisabled}" 
+                    :disabled="levelStart">
+                {{(runCodeDisabled && !levelStart) ? "Retry" : "Run Code"}}
+            </button>
             <router-link to="/level-select" class="btn btn-dark float-right">Level Select</router-link>
+            <!-- <img src="~@/assets/bulb.png" /> -->
         </div>
     </div>
 
@@ -93,6 +98,7 @@ export default {
             codeMode: 'main', //main, functions, api
             animationStep: 0,
             animationArray: [],
+            levelStart:true,
             runCodeDisabled: true,
             interactivesArray: [],
             gatorsArray: [],
@@ -922,6 +928,12 @@ function onUpdateEvent()
     },
     runCode: function()
     {
+        if(this.runCodeDisabled) 
+        {
+            this.retryLevel();
+            return;
+        }
+
         this.runCodeDisabled = true;
         var editor = ace.edit("editor");
         var functionsEditor = ace.edit("functionsEditor");
@@ -972,14 +984,63 @@ function onUpdateEvent()
 
         };
 
-        jaxiInterpreter = new Interpreter(vue.execCode, initFunc);
+        try
+        {
+            var mainCodeCheck = new Interpreter(this.code, initFunc);
+        } catch (err)
+        {
+            if(err.message.indexOf('Unexpected token') > -1)
+            {
+                formatUnexpectedTokenString(err.message, "main")
+                restartLevel()
+                return
+            }
+        }
+        try
+        {
+            var functionCodeCheck = new Interpreter(this.functions, initFunc);
+        } catch (err)
+        {
+            if(err.message.indexOf('Unexpected token') > -1)
+            {
+                formatUnexpectedTokenString(err.message, "functions")
+                restartLevel()
+                return
+            }
+        }
+        try
+        {
+            jaxiInterpreter = new Interpreter(vue.execCode, initFunc);
+        } catch (err)
+        {
+            alert(err.message)
+            restartLevel()
+            return
+        }
         
         nextStep();
         console.log(jaxiInterpreter);
 
        
        if(this.code.length > 100) phaser.sound.add('playSong', {loop:true, volume: .15}).play();
+
+       function formatUnexpectedTokenString(message, codePanel)
+       {
+           //Unexpected token (3:5)
+            let errString = message.replace("Unexpected token (", "")
+            errString = errString.replace(")", "")
+            let errParts = errString.split(':');
+            let lineNum = errParts[0]
+            let charNum = errParts[1]
+            alert(`Syntax Error... It looks like there is a misplaced or missing character somewhere in your code.\n\nIt might be in your ${codePanel} code panel, on line ${lineNum}, character ${charNum}.`)
+       }
         
+    },
+    retryLevel: function()
+    {
+        vue.codePause = true;
+        jaxi.anims.play('die');
+        restartLevel(true)
     },
     setupToolTip(sprite, toolTipText)
     {
@@ -1020,6 +1081,7 @@ function onUpdateEvent()
             vue.animationStep++;
             animProps.func(animProps.params);
             this.runCodeDisabled = vue.animationStep < vue.animationArray.length;
+            this.levelStart = vue.animationStep < vue.animationArray.length;
         }
     },
     say: function(dialogueArray)
@@ -1749,7 +1811,7 @@ function finishLevel()
     phaser.sound.add('teleport').play();
 }
 
-function restartLevel()
+function restartLevel(noAnim)
 {
     window.setTimeout(function(){
         if(vue.motherboard && vue.motherboard.isAppeased)
@@ -1762,7 +1824,7 @@ function restartLevel()
         jaxi.setVelocity(0, 0);
         saveState();
         levelComplete = setCodeState(true);
-        jaxi.anims.play('die');
+        if(!noAnim) jaxi.anims.play('die');
         window.setTimeout(function(){
             vue.fadeOut();
             window.setTimeout(function (){
@@ -1929,6 +1991,7 @@ function createSelection(start, end) {
 .btn-run-code
 {
     background-color: #596F14;
+    width: 100px;
 }
 .btn-run-code:disabled:hover
 {
@@ -1937,6 +2000,20 @@ function createSelection(start, end) {
 .btn-run-code:hover
 {
     background-color: #B2D251;
+}
+
+.btn-retry
+{
+    background-color: rgb(111, 20, 20);
+    width: 100px;
+}
+.btn-retry:disabled:hover
+{
+    background-color: #343a40;
+}
+.btn-retry:hover
+{
+    background-color: rgb(210, 81, 81);
 }
 
 .game-area
@@ -1955,6 +2032,17 @@ function createSelection(start, end) {
     padding: 6px;
     background-color: #000000;
     color: white;
+    visibility: hidden;
+}
+
+#retryDiv
+{
+    position: absolute;
+    top:20px;
+    right:20px;
+    padding: 6px;
+    width: 40px;
+    height: 40px;
 }
 
 canvas {
@@ -1966,6 +2054,11 @@ canvas {
 .hidden
 {
     display: none;
+}
+
+.disabled
+{
+    opacity: .4;
 }
 
 #api{
