@@ -71,6 +71,8 @@ app.on('activate', () => {
   }
 })
 
+app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+
 // debug stuffs.
 // if(process.env.NODE_ENV !== 'development')
 // {

@@ -2602,6 +2602,8 @@ __WEBPACK_IMPORTED_MODULE_0_electron__["app"].on('activate', function () {
   }
 });
 
+__WEBPACK_IMPORTED_MODULE_0_electron__["app"].commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+
 
 
 __WEBPACK_IMPORTED_MODULE_1_electron_updater__["autoUpdater"].on('update-downloaded', function () {

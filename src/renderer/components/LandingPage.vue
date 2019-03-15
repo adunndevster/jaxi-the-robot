@@ -27,6 +27,8 @@
       if(!watchedIntro)
       {
         router.push('intro')
+      } else {
+
       }
       
     },
