@@ -1861,7 +1861,8 @@ function nextStep() {
             var editor = ace.edit("editor");
             editor.focus();
             if(range != null) range.start.row = (range.start.row > 1) ? range.start.row - 2 : range.start.row;
-            range = editor.find(activeCode, {start:range}, true);
+            //range = editor.find(activeCode, {start:range}, true);
+            
             //editor.addSelectionMarker(range);
             //createSelection(start, end);
 
@@ -1976,44 +1977,47 @@ function createSelection(start, end) {
 {
     padding: 0px;
 }
-.btn{
-    -webkit-border-radius: 0px;
-    -moz-border-radius: 0px;
-    border-radius: 0px;
+.btn
+{
+    background-color: #B2D251 !important;
+    -webkit-border-radius: 0px !important;
+    -moz-border-radius: 0px !important;
+    border-radius: 0px !important;
+
 }
 .btn-dark{
-    background-color: #343a40;
+    background-color: #343a40 !important;
 }
 .btn-dark:hover{
-    background-color: #454a51;
+    background-color: #454a51 !important;
 }
 
 .btn-run-code
 {
-    background-color: #596F14;
+    background-color: #596F14 !important;
     width: 100px;
 }
 .btn-run-code:disabled:hover
 {
-    background-color: #343a40;
+    background-color: #343a40 !important;
 }
 .btn-run-code:hover
 {
-    background-color: #B2D251;
+    background-color: #B2D251  !important;
 }
 
 .btn-retry
 {
-    background-color: rgb(111, 20, 20);
+    background-color: rgb(111, 20, 20) !important;
     width: 100px;
 }
 .btn-retry:disabled:hover
 {
-    background-color: #343a40;
+    background-color: #343a40 !important;
 }
 .btn-retry:hover
 {
-    background-color: rgb(210, 81, 81);
+    background-color: rgb(210, 81, 81) !important;
 }
 
 .game-area
