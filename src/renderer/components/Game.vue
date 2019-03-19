@@ -1949,6 +1949,7 @@ function createSelection(start, end) {
 
   body { 
     font-family: 'Source Sans Pro', sans-serif;
+    overflow: hidden;
    }
 
 .game-screen
@@ -1979,7 +1980,6 @@ function createSelection(start, end) {
 }
 .btn
 {
-    background-color: #B2D251 !important;
     -webkit-border-radius: 0px !important;
     -moz-border-radius: 0px !important;
     border-radius: 0px !important;
@@ -1997,6 +1997,10 @@ function createSelection(start, end) {
     background-color: #596F14 !important;
     width: 100px;
 }
+.btn-run-code:disabled
+{
+    background-color: #343a40 !important;
+}
 .btn-run-code:disabled:hover
 {
     background-color: #343a40 !important;
@@ -2010,6 +2014,10 @@ function createSelection(start, end) {
 {
     background-color: rgb(111, 20, 20) !important;
     width: 100px;
+}
+.btn-retry:disabled
+{
+    background-color: #343a40 !important;
 }
 .btn-retry:disabled:hover
 {

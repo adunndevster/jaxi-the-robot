@@ -12,7 +12,7 @@
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
     "ship": "build -p always",
-    "ship:win32": "build:win32 -p always",
+    "ship:win32": "node .electron-vue/build.js && electron-builder -w -p always",
     "dev": "node .electron-vue/dev-runner.js",
     "e2e": "npm run pack && mocha test/e2e",
     "lint": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter src test",
@@ -31,7 +31,7 @@
     }
   },
   "build": {
-    "productName": "jaxi-the-robot",
+    "productName": "Jaxi the Robot",
     "appId": "com.jaxitherobot.game",
     "directories": {
       "output": "build"

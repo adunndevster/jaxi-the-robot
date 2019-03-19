@@ -55,6 +55,7 @@ function createWindow () {
 ];
 
 menu.setApplicationMenu(menu.buildFromTemplate(template));
+mainWindow.setMenuBarVisibility(false);
 }
 
 app.on('ready', createWindow)
