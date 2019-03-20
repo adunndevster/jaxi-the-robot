@@ -7,37 +7,43 @@
       </div>
     </transition>
 
-
+    <div id="btnClose" @click="closeApp">&#10006;</div>
   </div>
-  
+
 </template>
 
 <script>
-  export default {
-    name: 'jaxi-the-robot',
-    data () {
-      return {
-        isShowing: true
-      }
+
+const { remote } = require('electron')
+
+export default {
+  name: 'jaxi-the-robot',
+  data () {
+    return {
+      isShowing: true
+    }
+  },
+  methods: {
+    fadeOut () {
+      var vue = this
+      window.setTimeout(function () {
+        vue.isShowing = false
+      }, 1000)
     },
-    methods: {
-      fadeOut () {
-        var vue = this
-        window.setTimeout(function () {
-          vue.isShowing = false
-        }, 1000)
-      },
-      fadeIn () {
-        this.isShowing = true
-      },
-      setFade (fadeState) {
-        this.isShowing = fadeState
-      }
+    fadeIn () {
+      this.isShowing = true
     },
-    mounted () {
-      this.fadeOut()
+    setFade (fadeState) {
+      this.isShowing = fadeState
+    },
+    closeApp (){
+      remote.app.quit()
+    }
+  },
+  mounted () {
+    this.fadeOut()
   }
-  }
+}
 </script>
 
 <style>
@@ -65,4 +71,14 @@ fade-enter-active, .fade-leave-active {
   opacity: 0;
 }
 
+#btnClose
+{
+  font-size: 24px;
+  color: white;
+  position: absolute;
+  right: 12px;
+  top:12px;
+  z-index: 30000;
+  user-select: none;
+}
 </style>

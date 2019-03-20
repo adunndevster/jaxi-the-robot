@@ -77,8 +77,8 @@
 .intro-link
 {
   position: absolute;
-  top: 14px;
-  right: 40px;
+  bottom: 14px;
+  left: 60px;
   font-family: Righteous;
   font-size: 28px;
   color: white !important;

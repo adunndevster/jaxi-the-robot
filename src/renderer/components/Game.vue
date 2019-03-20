@@ -876,28 +876,6 @@ function create ()
 
     });
     
-    // waiting for user input
-    this.input.on("pointerdown", function(pointer){
-
-        // getting Matter bodies under the pointer
-        var bodiesUnderPointer = Phaser.Physics.Matter.Matter.Query.point(this.matter.world.localWorld.bodies, pointer);
-
-        // if there isn't any body under the pointer...
-        //if(bodiesUnderPointer.length == 0){
-
-            // create a crate
-            var sprite = this.matter.add.sprite(pointer.x, pointer.y, "teleporter");
-        //}
-
-        // this is where I wanted to remove the crate. Unfortunately I did not find a quick way to delete the Sprite
-        // bound to a Matter body, so I am setting it to invisible, then remove the body.
-        //else{
-            //bodiesUnderPointer[0].gameObject.visible = false;
-            //this.matter.world.remove(bodiesUnderPointer[0])
-        //}
-    }, this);
-
-
     vue.chopperbot = chopperbot;
     vue.chopperbot_flyAway = chopperbot_flyAway;
     vue.jaxi = jaxi;
@@ -1082,6 +1060,8 @@ function onUpdateEvent()
             animProps.func(animProps.params);
             this.runCodeDisabled = vue.animationStep < vue.animationArray.length;
             this.levelStart = vue.animationStep < vue.animationArray.length;
+        } else {
+            this.levelStart = false;
         }
     },
     say: function(dialogueArray)
