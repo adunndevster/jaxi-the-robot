@@ -1,73 +1,107 @@
 <template>
-<div class="level-select">
-  <nav>
-    <div class="title">Level Selection</div>
-  </nav>
+<div id="levelSelect" ref="levelSelect" class="level-select-wrapper">
+  <div class="level-select">
+    <nav>
+      <div @click="clearUserData" class="title">Level Selection</div>
+      <div @click="showPlayersModal" class="profile" :class="{'hide':(currentPlayer==null || currentPlayer=='')}" >{{currentPlayer}}</div>
+    </nav>
 
-  <div class="zones">
-    
-    <div class="zone">
+    <div class="zones">
       
-      <div class="sidebar">
-        The Junkyard
+      <div class="zone">
+        
+        <div class="sidebar">
+          The Junkyard
+        </div>
+        
+        <levels startLevel="0" />
+
+        <div v-bind:class="{'zone-bg':true, junkyard:true, brighten:(zone==1)}"></div>
+
       </div>
-      
-      <levels startLevel="0" />
+      <div class="zone">
+        
+        <div class="sidebar">
+          The Forest
+        </div>
+        
+        <levels startLevel="10" />
 
-      <div v-bind:class="{'zone-bg':true, junkyard:true, brighten:(zone==1)}"></div>
-
-    </div>
-    <div class="zone">
-      
-      <div class="sidebar">
-        The Forest
+        <div v-bind:class="{'zone-bg':true, forest:true, brighten:(zone==2)}"></div>
+        
       </div>
-      
-      <levels startLevel="10" />
+      <div class="zone">
+        
+        <div class="sidebar">
+          Sprockets Cavern
+        </div>
+        
+        <levels startLevel="20" />
 
-      <div v-bind:class="{'zone-bg':true, forest:true, brighten:(zone==2)}"></div>
-      
-    </div>
-    <div class="zone">
-      
-      <div class="sidebar">
-        Sprockets Cavern
+        <div v-bind:class="{'zone-bg':true, cave:true, brighten:(zone==3)}"></div>
+        
       </div>
-      
-      <levels startLevel="20" />
+      <div class="zone">
+        
+        <div class="sidebar">
+          Candy City
+        </div>
 
-      <div v-bind:class="{'zone-bg':true, cave:true, brighten:(zone==3)}"></div>
-      
-    </div>
-    <div class="zone">
-      
-      <div class="sidebar">
-        Candy City
+        <levels startLevel="30" />
+        
+        <div v-bind:class="{'zone-bg':true, 'candycity':true, brighten:(zone==4)}"></div>
+        
       </div>
+      <div class="zone">
+        
+        <div class="sidebar">
+          Motherboard's Factory
+        </div>
 
-      <levels startLevel="30" />
-      
-      <div v-bind:class="{'zone-bg':true, 'candycity':true, brighten:(zone==4)}"></div>
-      
-    </div>
-    <div class="zone">
-      
-      <div class="sidebar">
-        Motherboard's Factory
+        <levels startLevel="40" />
+        
+        <div v-bind:class="{'zone-bg':true, factory:true, brighten:(zone==5)}"></div>
+        
       </div>
-
-      <levels startLevel="40" />
-      
-      <div v-bind:class="{'zone-bg':true, factory:true, brighten:(zone==5)}"></div>
-      
     </div>
+
+    <b-modal id="newPlayerModal" ref="newPlayerModal" title="New Player..."
+      @ok="handleNewPlayerOk" 
+      @hide="onNewPlayerNoSave"
+      ok-only
+      ok-title="Save"
+      :no-close-on-backdrop="(players==null || players.length < 1)"
+      :no-close-on-esc="(players==null || players.length < 1)"
+      :hide-header-close="(players==null || players.length < 1)" >
+      <p class="my-4" v-if="(players==null || players.length < 1)">
+        Looks like you are new! Who will be playing?
+      </p>
+      <p class="my-4" v-if="(players==null || players.length < 1)">
+        Who will be playing?
+      </p>
+      <b-form-input type="text" v-model="currentPlayer" />
+    </b-modal>
+
+    <b-modal id="playersModal" ref="playersModal" title="Players" ok-title="Close" ok-only>
+      <p class="my-4">Select your player profile, or create a new one.</p>
+      <div class="player-select" v-for="player in players">
+        <div @click="selectPlayer(player)">
+          {{player}}
+          <div @click="deletePlayer(player)" v-if="players.length > 1" class="float-right">&#10006;</div>
+        </div>
+      </div>
+      <div v-if="players.length<6" class="player-select">
+        <div @click="showCreatePlayerModal">Create new player...</div>
+      </div>
+    </b-modal>
+
+    <b-modal id="deletePlayerModal" ref="deletePlayerModal" 
+      title="Delete player..." 
+      ok-title="Delete"
+      @ok="confirmDelete">
+      <p class="my-4">Are you sure you want to delete {{playerToDelete}}? This cannot be undone!</p>
+    </b-modal>
   </div>
-
-<!--
-  <h1>Level Select</h1>
-  <router-link to="/Game/1">Level 1</router-link>
-  <router-link to="/Game/2">Level 2</router-link>
-  -->
 </div>
 </template>
 
@@ -80,24 +114,107 @@ export default {
   components: { Levels },
   data () {
     return {
+      currentPlayer: null,
+      playerToDelete: null,
+      players: [],
       zone: 1
     }
   },
   methods: {
+    clearUserData (){
+      localStorage.removeItem('currentPlayer');
+      localStorage.removeItem('players');
+    },
     handleScroll () {
-      this.zone = Math.ceil((window.scrollY - 100) / 732) + 1
+      var levelSelect = this.$refs.levelSelect;
+      this.zone = Math.ceil((levelSelect.scrollTop - 100) / 732) + 1
+    },
+    showPlayersModal(){
+      this.$refs.playersModal.show()
+    },
+    showCreatePlayerModal(){
+      this.$refs.playersModal.hide()
+      this.$refs.newPlayerModal.show()
+    },
+    handleNewPlayerOk(evt) {
+      // Prevent modal from closing
+      evt.preventDefault()
+      if (!this.currentPlayer) {
+        alert('Please enter your name')
+      } else if(this.players.some(player => player.toLowerCase() == this.currentPlayer.toLowerCase()))
+      {
+        alert("Please enter a name that hasn't been used yet.")
+      } else {
+        localStorage.setItem('currentPlayer', this.currentPlayer);
+        this.players.push(this.currentPlayer);
+        localStorage.setItem('players', JSON.stringify(this.players));
+        this.$refs.newPlayerModal.hide()
+      }
+    },
+    onNewPlayerNoSave() {
+      this.currentPlayer = localStorage.getItem('currentPlayer');
+    },
+    selectPlayer(player)
+    {
+      this.currentPlayer = player;
+      localStorage.setItem('currentPlayer', this.currentPlayer);
+      this.$refs.playersModal.hide()
+    },
+    deletePlayer(player)
+    {
+      this.playerToDelete = player;
+      this.$refs.playersModal.hide();
+      this.$refs.deletePlayerModal.show();
+    },
+    confirmDelete()
+    {
+      this.players = this.players.filter(player => player != this.playerToDelete);
+      if(this.players.length > 0)
+      {
+        this.currentPlayer = this.players[0];
+        localStorage.setItem('currentPlayer', this.currentPlayer)
+        localStorage.setItem('players', JSON.stringify(this.players))
+      } else {
+        this.players = null;
+        this.currentPlayer = null;
+        localStorage.removeItem('currentPlayer');
+        localStorage.removeItem('players');
+        showCreatePlayerModal();
+      }
+      this.playerToDelete = null;
+      this.$refs.deletePlayerModal.hide();
     }
   },
-  created () {
-    window.addEventListener('scroll', this.handleScroll)
+  mounted () {
+    var levelSelect = this.$refs.levelSelect;
+    levelSelect.addEventListener('scroll', this.handleScroll)
+
+    this.currentPlayer = localStorage.getItem('currentPlayer');
+    if(!this.currentPlayer)
+    {
+      this.showCreatePlayerModal();
+    } else {
+      this.players = JSON.parse(localStorage.getItem('players'));
+    }
   },
   destroyed () {
-    window.removeEventListener('scroll', this.handleScroll)
+    var levelSelect = this.$refs.levelSelect;
+    if(levelSelect) levelSelect.removeEventListener('scroll', this.handleScroll)
   }
 }
 </script>
 
 <style>
+
+.level-select-wrapper
+{
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+}
 
 .level-select *{
   font-family: Righteous;
@@ -120,6 +237,19 @@ nav{
 .title{
   color:white;
   font-size: 56px;
+}
+
+.profile{
+  border-color: white;
+  border-radius: 6px;
+  border-style: solid;
+  border-width: 2px;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 24px;
+  padding: 10px;
+  color: white;
 }
 
 .zones
@@ -184,5 +314,15 @@ nav{
 {
   background-image: url("~@/assets/levels/mcFactory.png");
 }
+
+.hide{
+  display: none;
+}
+
+.player-select div{
+  cursor: pointer;
+  user-select: none;
+}
+
   
 </style>

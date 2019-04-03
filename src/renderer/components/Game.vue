@@ -31,6 +31,9 @@
             </button>
             <router-link to="/level-select" class="btn btn-dark float-right">Level Select</router-link>
             <!-- <img src="~@/assets/bulb.png" /> -->
+            <button v-on:click="runStory" class="btn btn-dark" :disabled="runCodeDisabled">
+                Story
+            </button>
         </div>
     </div>
 
@@ -52,7 +55,9 @@
   </div>
   <div class="game-area">
       <div id='gameCanvas'></div>
+      <div id="levelLabel">{{levelNum}}</div>
   </div>
+
 
   <div id="codeLabel">{{activeCode}}</div>
 </div>
@@ -74,7 +79,6 @@ var jaxi, chopperbot;
 var jaxiInterpreter;
 var _codePause = false;
 var levelComplete = false;
-var levelNum = 1;
 var vue;
 var phaser;
 var game;
@@ -91,6 +95,7 @@ export default {
   },
   data() {
         return {
+            currentPlayer: '',
             code: '',
             execCode: '',
             activeCode: null,
@@ -99,6 +104,7 @@ export default {
             animationStep: 0,
             animationArray: [],
             levelStart:true,
+            levelNum:1,
             runCodeDisabled: true,
             interactivesArray: [],
             gatorsArray: [],
@@ -111,8 +117,9 @@ export default {
         }
     },
   mounted() {
-    this.code = localStorage.getItem('code_' + levelNum);
-    this.functions = localStorage.getItem('jaxiFunctions');
+    this.currentPlayer = localStorage.getItem('currentPlayer');
+    this.code = localStorage.getItem(this.currentPlayer + '_code_' + this.levelNum);
+    this.functions = localStorage.getItem(this.currentPlayer + '_jaxiFunctions');
     var editor = ace.edit("editor");
     var functionsEditor = ace.edit("functionsEditor");
     if(this.code) editor.getSession().setValue(this.code);
@@ -335,8 +342,8 @@ export default {
     runGame: function()
     {
 
-levelNum = Number(this.$route.params.level);
-var levelData = require('../assets/levels/level' + levelNum + '.js');
+vue.levelNum = Number(this.$route.params.level);
+var levelData = require('../assets/levels/level' + vue.levelNum + '.js');
 
 
 var gameArea = document.getElementsByClassName('game-area')[0];
@@ -879,10 +886,20 @@ function create ()
     vue.chopperbot = chopperbot;
     vue.chopperbot_flyAway = chopperbot_flyAway;
     vue.jaxi = jaxi;
-    var animationGetter = require('../assets/levels/levelAnimation' + levelNum + '.js').AnimationGetter;
+    var animationGetter = require('../assets/levels/levelAnimation' + vue.levelNum + '.js').AnimationGetter;
     vue.animationArray = animationGetter.get(vue);
     if(vue.animationArray.length == 0) vue.runCodeDisabled = false;
-    vue.runLevelAnimation();
+    
+    if(vue.$route.params.playAnim == "true")
+    {
+        vue.runLevelAnimation();
+    } else {
+        vue.levelStart = false;
+        vue.runCodeDisabled = false;
+        vue.animationStep = vue.animationArray.length;
+        chopperbot_flyAway();
+    }
+    
 
     vue.updateEvent = this.time.addEvent({ delay: 500, callback: onUpdateEvent, callbackScope: this, loop: true });
 
@@ -903,6 +920,13 @@ function onUpdateEvent()
 }
 
 
+    },
+    runStory: function()
+    {
+        vue.levelStart = true;
+        vue.runCodeDisabled = true;
+        chopperbot_flyBack();
+        window.setTimeout(vue.runLevelAnimation, 1010)
     },
     runCode: function()
     {
@@ -1053,7 +1077,7 @@ function onUpdateEvent()
     },
     nextAnimationStep: function()
     {
-        if(vue.animationStep < vue.animationArray.length)
+        if(vue.animationStep < vue.animationArray.length && vue.levelStart)
         {
             var animProps = vue.animationArray[vue.animationStep];
             vue.animationStep++;
@@ -1686,22 +1710,32 @@ function lert(val)
 
 
 //chopperbot//////////////
+var chopperbot_origY;
 function chopperbot_flyAway()
 {
     chopperbot.body.isSleeping = true;
+    chopperbot_origY = chopperbot.y;
     phaser.tweens.add({
                 targets: chopperbot,
                 y: -800,
                 ease: 'Quad.easeIn',
-                duration: 2200,
+                duration: 1000,
                 //onUpdate: function() { },
                 onComplete: function() { 
-                    chopperbot.destroy();
+                    //chopperbot.destroy();
                     vue.nextAnimationStep();
                 }
             });
-
-    
+}
+function chopperbot_flyBack()
+{
+    chopperbot.body.isSleeping = true;
+    phaser.tweens.add({
+                targets: chopperbot,
+                y: chopperbot_origY,
+                ease: 'Quad.easeOut',
+                duration: 1000
+            });
 }
 /////////////////////////   
 
@@ -1783,7 +1817,7 @@ function finishLevel()
     window.setTimeout(function(){
         vue.fadeOut();
         window.setTimeout(function (){
-            router.push({ name: 'Game', params: { level: (levelNum + 1)}})
+            router.push({ name: 'Game', params: { playAnim:true, level: (vue.levelNum + 1)}})
             location.reload(); //TODO: find a way to clear the memory space, and smoothly transition between pages... Why? So we can stick to the SPA vue paradigm.
         }, 650);
         
@@ -1808,7 +1842,7 @@ function restartLevel(noAnim)
         window.setTimeout(function(){
             vue.fadeOut();
             window.setTimeout(function (){
-                router.push({ name: 'Game', params: { level: (levelNum)}})
+                router.push({ name: 'Game', params: { level: vue.levelNum, playAnim: false}})
                 location.reload(); //TODO: find a way to clear the memory space, and smoothly transition between pages... Why? So we can stick to the SPA vue paradigm.
             }, 650);
             
@@ -1819,8 +1853,8 @@ function restartLevel(noAnim)
 
 function saveState()
 {
-    localStorage.setItem('code_' + levelNum, vue.code);
-    localStorage.setItem('jaxiFunctions', vue.functions);
+    localStorage.setItem(vue.currentPlayer + '_code_' + vue.levelNum, vue.code);
+    localStorage.setItem(vue.currentPlayer + '_jaxiFunctions', vue.functions);
 }
 
 function setCodeState(codePause)
@@ -1932,6 +1966,7 @@ function createSelection(start, end) {
     overflow: hidden;
    }
 
+
 .game-screen
 {
     white-space: nowrap;
@@ -2014,6 +2049,20 @@ function createSelection(start, end) {
     height: 100vh;
     width:71vw;
     float: left;
+    position: relative
+}
+
+#levelLabel
+{
+    top:16px;
+    left: 16px;
+    position: absolute;
+    font-family: Righteous;
+    font-size: 32px;
+    color:white;
+    text-decoration: none !important;
+    text-shadow: 1px 1px 4px black;
+    user-select: none;
 }
 
 #codeLabel

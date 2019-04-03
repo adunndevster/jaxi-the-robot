@@ -15,9 +15,7 @@
     name: 'intro',
     components: { },
     mounted () {
-      window.addEventListener('keypress', function () {
-        router.push('landing-page')
-      }, false)
+      window.addEventListener('keypress', this.keydown, true)
 
       document.getElementById('video').addEventListener('ended',onVideoEnd,false);
       function onVideoEnd(e) {
@@ -25,8 +23,14 @@
       }
 
       localStorage.setItem('watchedIntro', true);
-  },
+    },
+    destroyed () {
+      window.removeEventListener('keypress', this.keydown, true)
+    },
     methods: {
+      keydown () {
+        router.push('landing-page')
+      }
     }
   
   }

@@ -10,6 +10,7 @@
     <router-link to="/intro" class="intro-link">
       Watch Intro
     </router-link>
+    <div class="versionLabel">{{version}}</div>
   </div>
 
 </div>
@@ -21,6 +22,11 @@
 
   export default {
     name: 'landing-page',
+    data() {
+      return {
+        version: 1
+      }
+    },
     components: { SystemInformation },
     beforeCreate() {
       var watchedIntro = localStorage.getItem('watchedIntro');
@@ -33,13 +39,18 @@
       
     },
     mounted () {
-      window.addEventListener('keypress', function () {
-        router.push('level-select')
-      }, false)
-  },
+      this.version = window.require('electron').remote.app.getVersion();
+      window.addEventListener('keypress', this.keydown, true)
+    },
+    destroyed () {
+      window.removeEventListener('keypress', this.keydown, true);
+    },
     methods: {
       open (link) {
         this.$electron.shell.openExternal(link)
+      },
+      keydown () {
+        router.push('level-select')
       }
     }
   
@@ -87,6 +98,18 @@
 }
 .intro-link :hover{
   color: #CFC777 !important;
+}
+
+.versionLabel
+{
+  position: absolute;
+  bottom: 18px;
+  right: 60px;
+  font-family: Righteous;
+  font-size: 16px;
+  color: white !important;
+  text-decoration: none !important;
+  text-shadow: 1px 1px 4px black;
 }
 
 </style>

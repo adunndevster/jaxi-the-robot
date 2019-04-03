@@ -26,7 +26,7 @@ export default new Router({
       component: require('@/components/LevelSelect').default
     },
     {
-      path: '/Game/:level',
+      path: '/Game/:level/:playAnim',
       name: 'Game',
       component: require('@/components/Game').default
     },

@@ -58,6 +58,10 @@ menu.setApplicationMenu(menu.buildFromTemplate(template));
 mainWindow.setMenuBarVisibility(false);
 }
 
+app.commandLine.appendSwitch('js-flags', '--max-old-space-size=4096');
+//app.commandLine.appendSwitch('js-flags', '--force-gpu-mem-available-mb=4096');
+app.commandLine.appendSwitch('js-flags', '--disable-gpu-vsync');
+
 app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {

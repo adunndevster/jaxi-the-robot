@@ -27,7 +27,7 @@ export default {
       parent.$emit('fadeFunc', true)
 
       setTimeout(function () {
-        router.push({ name: 'Game', params: { level: (levelNum)}})
+        router.push({ name: 'Game', params: { level: (levelNum), playAnim:true}})
         parent.$emit('fadeFunc', false)
       }, 650)
         
