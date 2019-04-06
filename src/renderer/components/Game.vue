@@ -29,7 +29,7 @@
                     :disabled="levelStart">
                 {{(runCodeDisabled && !levelStart) ? "Retry" : "Run Code"}}
             </button>
-            <router-link to="/level-select" class="btn btn-dark float-right">Level Select</router-link>
+            <router-link to="/level-select" class="btn btn-dark">Level Select</router-link>
             <!-- <img src="~@/assets/bulb.png" /> -->
             <button v-on:click="runStory" class="btn btn-dark" :disabled="runCodeDisabled">
                 Story
