@@ -1823,6 +1823,18 @@ function finishLevel()
         
     }, 2000);   
     phaser.sound.add('teleport').play();
+
+    var unlockedLevels = JSON.parse(localStorage.getItem('unlockedLevels_' + vue.currentPlayer));
+    if(!unlockedLevels)
+    {
+        unlockedLevels = [];
+        unlockedLevels.push(vue.levelNum);
+        unlockedLevels.push(vue.levelNum + 1);
+    } else {
+        if(unlockedLevels.indexOf(vue.levelNum) == -1) unlockedLevels.push(vue.levelNum);
+        if(unlockedLevels.indexOf(vue.levelNum + 1) == -1) unlockedLevels.push(vue.levelNum + 1);
+    }
+    localStorage.setItem('unlockedLevels_' + vue.currentPlayer, JSON.stringify(unlockedLevels));
 }
 
 function restartLevel(noAnim)

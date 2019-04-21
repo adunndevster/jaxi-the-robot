@@ -189,14 +189,9 @@ export default {
     },
     getunlockedLevels()
     {
-      var levels = 50;
-      this.unlockedLevels = [];
-      this.unlockedLevels.push(1);
-      for(var i=1; i<=levels; i++)
-      {
-        var levelCode = localStorage.getItem(this.currentPlayer + '_code_' + i);
-        if(levelCode) this.unlockedLevels.push(i+1);
-      }
+      this.unlockedLevels = JSON.parse(localStorage.getItem('unlockedLevels_' + this.currentPlayer));
+      alert(this.unlockedLevels);
+      if(!this.unlockedLevels) this.unlockedLevels = [1];
     }
   },
   mounted () {
