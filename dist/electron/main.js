@@ -2612,13 +2612,17 @@ __WEBPACK_IMPORTED_MODULE_0_electron__["app"].commandLine.appendSwitch('autoplay
 
 
 __WEBPACK_IMPORTED_MODULE_1_electron_updater__["autoUpdater"].on('update-downloaded', function () {
-  __WEBPACK_IMPORTED_MODULE_1_electron_updater__["autoUpdater"].quitAndInstall();
+  mainWindow.webContents.send('updateReady');
 });
 
 __WEBPACK_IMPORTED_MODULE_0_electron__["app"].on('ready', function () {
   if (process.env.NODE_ENV === 'production') {
     __WEBPACK_IMPORTED_MODULE_1_electron_updater__["autoUpdater"].checkForUpdates();
   }
+});
+
+__WEBPACK_IMPORTED_MODULE_0_electron__["ipcMain"].on("quitAndInstall", function (event, arg) {
+  __WEBPACK_IMPORTED_MODULE_1_electron_updater__["autoUpdater"].quitAndInstall();
 });
 /* WEBPACK VAR INJECTION */}.call(__webpack_exports__, "src/main"))
 

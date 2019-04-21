@@ -14,7 +14,7 @@
           The Junkyard
         </div>
         
-        <levels startLevel="0" />
+        <levels :startLevel="0" :unlockedLevels="unlockedLevels" />
 
         <div v-bind:class="{'zone-bg':true, junkyard:true, brighten:(zone==1)}"></div>
 
@@ -25,7 +25,7 @@
           The Forest
         </div>
         
-        <levels startLevel="10" />
+        <levels :startLevel="10" :unlockedLevels="unlockedLevels"/>
 
         <div v-bind:class="{'zone-bg':true, forest:true, brighten:(zone==2)}"></div>
         
@@ -36,7 +36,7 @@
           Sprockets Cavern
         </div>
         
-        <levels startLevel="20" />
+        <levels :startLevel="20" :unlockedLevels="unlockedLevels"/>
 
         <div v-bind:class="{'zone-bg':true, cave:true, brighten:(zone==3)}"></div>
         
@@ -47,7 +47,7 @@
           Candy City
         </div>
 
-        <levels startLevel="30" />
+        <levels :startLevel="30" :unlockedLevels="unlockedLevels" />
         
         <div v-bind:class="{'zone-bg':true, 'candycity':true, brighten:(zone==4)}"></div>
         
@@ -58,7 +58,7 @@
           Motherboard's Factory
         </div>
 
-        <levels startLevel="40" />
+        <levels :startLevel="40" :unlockedLevels="unlockedLevels" />
         
         <div v-bind:class="{'zone-bg':true, factory:true, brighten:(zone==5)}"></div>
         
@@ -117,7 +117,8 @@ export default {
       currentPlayer: null,
       playerToDelete: null,
       players: [],
-      zone: 1
+      zone: 1,
+      unlockedLevels: []
     }
   },
   methods: {
@@ -153,12 +154,14 @@ export default {
     },
     onNewPlayerNoSave() {
       this.currentPlayer = localStorage.getItem('currentPlayer');
+      this.getunlockedLevels();
     },
     selectPlayer(player)
     {
       this.currentPlayer = player;
       localStorage.setItem('currentPlayer', this.currentPlayer);
       this.$refs.playersModal.hide()
+      this.getunlockedLevels();
     },
     deletePlayer(player)
     {
@@ -183,6 +186,17 @@ export default {
       }
       this.playerToDelete = null;
       this.$refs.deletePlayerModal.hide();
+    },
+    getunlockedLevels()
+    {
+      var levels = 50;
+      this.unlockedLevels = [];
+      this.unlockedLevels.push(1);
+      for(var i=1; i<=levels; i++)
+      {
+        var levelCode = localStorage.getItem(this.currentPlayer + '_code_' + i);
+        if(levelCode) this.unlockedLevels.push(i+1);
+      }
     }
   },
   mounted () {
@@ -195,6 +209,14 @@ export default {
       this.showCreatePlayerModal();
     } else {
       this.players = JSON.parse(localStorage.getItem('players'));
+      if(!this.players){
+        this.players = [];
+        this.players.push(this.currentPlayer);
+        localStorage.setItem('players', JSON.stringify(this.players));
+        alert(this.players);
+      }
+      
+      this.getunlockedLevels();
     }
   },
   destroyed () {

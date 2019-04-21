@@ -890,7 +890,7 @@ function create ()
     vue.animationArray = animationGetter.get(vue);
     if(vue.animationArray.length == 0) vue.runCodeDisabled = false;
     
-    if(vue.$route.params.playAnim == "true")
+    if(vue.$route.params.playAnim == "true" || vue.$route.params.playAnim == true)
     {
         vue.runLevelAnimation();
     } else {

@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 var menu = require("electron").Menu;
 
 /**
@@ -108,7 +108,8 @@ app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 import { autoUpdater } from 'electron-updater'
 
 autoUpdater.on('update-downloaded', () => {
-  autoUpdater.quitAndInstall()
+  //autoUpdater.quitAndInstall()
+  mainWindow.webContents.send('updateReady')
 })
 
 app.on('ready', () => {
@@ -116,6 +117,9 @@ app.on('ready', () => {
   {
     autoUpdater.checkForUpdates()
   }
-  
+})
+
+ipcMain.on("quitAndInstall", (event, arg) => {
+  autoUpdater.quitAndInstall();
 })
  

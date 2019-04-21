@@ -8,13 +8,20 @@
     </transition>
 
     <div id="btnClose" @click="closeApp">&#10006;</div>
+
+    <b-modal id="updatesModal" ref="updatesModal" 
+      title="Your update is ready!" 
+      ok-title="Restart and update"
+      @ok="restartAndUpdate">
+      <p class="my-4">Your online update has been downloaded and is ready to install! Restart now?</p>
+    </b-modal>
   </div>
 
 </template>
 
 <script>
 
-const { remote } = require('electron')
+const { remote, ipcRenderer } = require('electron')
 
 export default {
   name: 'jaxi-the-robot',
@@ -38,10 +45,17 @@ export default {
     },
     closeApp (){
       remote.app.quit()
+    },
+    restartAndUpdate (){
+      ipcRenderer.send('quitAndInstall')
     }
   },
   mounted () {
     this.fadeOut()
+    var vue = this;
+    ipcRenderer.on('updateReady', function(event, text) {
+        vue.$refs.updatesModal.show()
+    })
   }
 }
 </script>
