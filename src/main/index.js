@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, screen } from 'electron'
 var menu = require("electron").Menu;
 
 /**
@@ -21,13 +21,20 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 563,
+    //width: 1920,
+    //height: 1152,
+    width: 1024,
+    height: 768,
     useContentSize: true,
-    width: 1000,
     backgroundColor: '#000000'
   })
 
-  mainWindow.setFullScreen(true)
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+  
+  if(width <= 1920)
+  {
+    mainWindow.setFullScreen(true)
+  }
 
   mainWindow.loadURL(winURL)
 

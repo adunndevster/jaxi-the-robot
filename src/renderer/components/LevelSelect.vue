@@ -190,7 +190,6 @@ export default {
     getunlockedLevels()
     {
       this.unlockedLevels = JSON.parse(localStorage.getItem('unlockedLevels_' + this.currentPlayer));
-      alert(this.unlockedLevels);
       if(!this.unlockedLevels) this.unlockedLevels = [1];
     }
   },
@@ -208,7 +207,6 @@ export default {
         this.players = [];
         this.players.push(this.currentPlayer);
         localStorage.setItem('players', JSON.stringify(this.players));
-        alert(this.players);
       }
       
       this.getunlockedLevels();

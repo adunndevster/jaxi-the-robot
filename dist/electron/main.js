@@ -2563,13 +2563,20 @@ var winURL = process.env.NODE_ENV === 'development' ? 'http://localhost:9080' : 
 
 function createWindow() {
   mainWindow = new __WEBPACK_IMPORTED_MODULE_0_electron__["BrowserWindow"]({
-    height: 563,
+    width: 1024,
+    height: 768,
     useContentSize: true,
-    width: 1000,
     backgroundColor: '#000000'
   });
 
-  mainWindow.setFullScreen(true);
+  var _screen$getPrimaryDis = __WEBPACK_IMPORTED_MODULE_0_electron__["screen"].getPrimaryDisplay().workAreaSize,
+      width = _screen$getPrimaryDis.width,
+      height = _screen$getPrimaryDis.height;
+
+
+  if (width <= 1920) {
+    mainWindow.setFullScreen(true);
+  }
 
   mainWindow.loadURL(winURL);
 
