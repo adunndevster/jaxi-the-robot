@@ -11,6 +11,11 @@ export default new Router({
       component: require('@/components/LandingPage').default
     },
     {
+      path: '/license',
+      name: 'license',
+      component: require('@/components/License').default
+    },
+    {
       path: '/intro',
       name: 'intro',
       component: require('@/components/Intro').default

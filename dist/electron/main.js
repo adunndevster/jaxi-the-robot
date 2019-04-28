@@ -2566,7 +2566,8 @@ function createWindow() {
     width: 1024,
     height: 768,
     useContentSize: true,
-    backgroundColor: '#000000'
+    backgroundColor: '#000000',
+    webPreferences: { webSecurity: false }
   });
 
   var _screen$getPrimaryDis = __WEBPACK_IMPORTED_MODULE_0_electron__["screen"].getPrimaryDisplay().workAreaSize,
@@ -2579,6 +2580,17 @@ function createWindow() {
   }
 
   mainWindow.loadURL(winURL);
+
+  function isSafeURL(url) {
+    return url.startsWith('http:') || url.startsWith('https:');
+  }
+
+  mainWindow.webContents.on('new-window', function (event, url) {
+    if (isSafeURL(url)) {
+      event.preventDefault();
+      __WEBPACK_IMPORTED_MODULE_0_electron__["shell"].openExternal(url);
+    }
+  });
 
   mainWindow.on('closed', function () {
     mainWindow = null;

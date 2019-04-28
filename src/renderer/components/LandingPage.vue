@@ -29,14 +29,18 @@
     },
     components: { SystemInformation },
     beforeCreate() {
-      var watchedIntro = localStorage.getItem('watchedIntro');
-      if(!watchedIntro)
+      var enteredLicenseKey = localStorage.getItem('licenseKey');
+      if(!enteredLicenseKey)
       {
-        router.push('intro')
+        router.push('license')
       } else {
-
+        var watchedIntro = localStorage.getItem('watchedIntro');
+        if(!watchedIntro)
+        {
+          router.push('intro')
+        }
       }
-      
+
     },
     mounted () {
       this.version = window.require('electron').remote.app.getVersion();

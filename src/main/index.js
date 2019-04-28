@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow, ipcMain, screen } from 'electron'
+import { app, BrowserWindow, ipcMain, screen, shell } from 'electron'
 var menu = require("electron").Menu;
 
 /**
@@ -26,7 +26,8 @@ function createWindow () {
     width: 1024,
     height: 768,
     useContentSize: true,
-    backgroundColor: '#000000'
+    backgroundColor: '#000000',
+    webPreferences: { webSecurity: false }
   })
 
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
@@ -37,6 +38,17 @@ function createWindow () {
   }
 
   mainWindow.loadURL(winURL)
+
+  function isSafeURL(url) {
+    return url.startsWith('http:') || url.startsWith('https:');
+  }
+  
+  mainWindow.webContents.on('new-window', (event, url) => {
+    if (isSafeURL(url)) {
+      event.preventDefault();
+      shell.openExternal(url);
+    }
+  });
 
   mainWindow.on('closed', () => {
     mainWindow = null
