@@ -29,6 +29,7 @@
                     :disabled="levelStart">
                 {{(runCodeDisabled && !levelStart) ? "Retry" : "Run Code"}}
             </button>
+            <a @click="navigateToLevelSelect()" class="btn btn-dark" href="#">Level Select</a>
             <router-link to="/level-select" class="btn btn-dark">Level Select</router-link>
             <!-- <img src="~@/assets/bulb.png" /> -->
             <button v-on:click="runStory" class="btn btn-dark" :disabled="runCodeDisabled">
@@ -53,7 +54,7 @@
     </div>
 
   </div>
-  <div class="game-area">
+  <div class="game-area" ref="game-area">
       <div id='gameCanvas'></div>
       <div id="levelLabel">{{levelNum}}</div>
   </div>
@@ -191,6 +192,14 @@ export default {
     setCodeMode: function(mode)
     {
         this.codeMode = mode;
+    },
+    navigateToLevelSelect: function()
+    {
+        vue.fadeOut();
+        window.setTimeout(function (){
+            router.push({ name: 'level-select'});
+            location.reload(); //TODO: find a way to clear the memory space, and smoothly transition between pages... Why? So we can stick to the SPA vue paradigm.
+        }, 650);
     },
     fadeOut: function() {
         this.$emit("fadeFunc", true);

@@ -220,6 +220,10 @@ export default {
 </script>
 
 <style>
+@font-face {
+  font-family: Righteous;
+  src: url('~@/assets/fonts/Righteous-Regular.ttf');
+}
 
 .level-select-wrapper
 {
