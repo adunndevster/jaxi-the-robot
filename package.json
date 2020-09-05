@@ -76,7 +76,7 @@
     "electron-updater": "^4.0.6",
     "jquery": "^3.3.1",
     "js-interpreter": "^1.4.6",
-    "node-sass": "^4.9.0",
+    "node-sass": "^4.13.1",
     "phaser": "^3.10.1",
     "sass-loader": "^7.0.1",
     "smoothscroll-polyfill": "^0.4.3",
